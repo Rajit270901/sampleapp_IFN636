@@ -6,14 +6,14 @@ const {
   updateDoctor,
   deleteDoctor,
 } = require('../controllers/doctorController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 router.get('/', getDoctors);
 router.get('/:id', getDoctorById);
-router.post('/', protect, createDoctor);
-router.put('/:id', protect, updateDoctor);
-router.delete('/:id', protect, deleteDoctor);
+router.post('/', protect, adminOnly, createDoctor);
+router.put('/:id', protect, adminOnly, updateDoctor);
+router.delete('/:id', protect, adminOnly, deleteDoctor);
 
 module.exports = router;
