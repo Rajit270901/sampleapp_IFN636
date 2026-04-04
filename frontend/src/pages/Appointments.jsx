@@ -3,45 +3,222 @@ import axiosInstance from '../axiosConfig';
 
 function Appointments() {
   const [appointments, setAppointments] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [actionLoading, setActionLoading] = useState('');
+  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState('');
+  const [selectedSlotId, setSelectedSlotId] = useState('');
+
+  const fetchAppointments = async () => {
+    try {
+      const res = await axiosInstance.get('/api/appointments/my');
+      setAppointments(res.data);
+      setError('');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load appointments.');
+    }
+  };
+
+  const fetchAvailableSlots = async () => {
+    try {
+      const res = await axiosInstance.get('/api/slots/available');
+      setAvailableSlots(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const fetchAppointments = async () => {
+    const loadData = async () => {
       try {
-        const res = await axiosInstance.get('/appointments');
-        setAppointments(res.data);
-      } catch (err) {
-        setError('Failed to load appointments');
-        console.error(err);
+        setLoading(true);
+        await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAppointments();
+    loadData();
   }, []);
 
-  if (loading) return <p className="p-4">Loading appointments...</p>;
-  if (error) return <p className="p-4 text-red-600">{error}</p>;
+  const handleCancel = async (appointmentId) => {
+    try {
+      setActionLoading(appointmentId);
+      setMessage('');
+      setError('');
+
+      await axiosInstance.put(`/api/appointments/${appointmentId}/cancel`);
+      setMessage('Appointment cancelled successfully.');
+      await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to cancel appointment.');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleReschedule = async (appointmentId) => {
+    if (!selectedSlotId) {
+      setError('Please select a new slot before rescheduling.');
+      return;
+    }
+
+    try {
+      setActionLoading(appointmentId);
+      setMessage('');
+      setError('');
+
+      await axiosInstance.put(`/api/appointments/${appointmentId}/reschedule`, {
+        newSlotId: selectedSlotId,
+      });
+
+      setMessage('Appointment rescheduled successfully.');
+      setRescheduleAppointmentId('');
+      setSelectedSlotId('');
+      await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to reschedule appointment.');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  if (loading) {
+    return <div className="max-w-7xl mx-auto px-4 py-8 text-gray-600">Loading appointments...</div>;
+  }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Appointments</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="mb-8">
+        <p className="text-sm uppercase tracking-wider text-gray-500">MediTrack</p>
+        <h1 className="text-3xl font-bold text-[#166cb7] mt-2">My Appointments</h1>
+        <p className="text-gray-600 mt-2">
+          Track your bookings, cancel appointments, or reschedule to another available slot.
+        </p>
+      </div>
+
+      {message && (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+          {message}
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600">
+          {error}
+        </div>
+      )}
+
       {appointments.length === 0 ? (
-        <p>No appointments found.</p>
+        <div className="bg-white rounded-2xl shadow-md border border-sky-100 p-8 text-center text-gray-600">
+          No appointments found.
+        </div>
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-6">
           {appointments.map((appointment) => (
-            <li key={appointment._id} className="border rounded p-3">
-              <p><strong>Patient:</strong> {appointment.patientName}</p>
-              <p><strong>Doctor:</strong> {appointment.doctor}</p>
-              <p><strong>Date:</strong> {appointment.date}</p>
-              <p><strong>Time:</strong> {appointment.time}</p>
-              <p><strong>Status:</strong> {appointment.status}</p>
-            </li>
+            <div
+              key={appointment._id}
+              className="bg-white rounded-2xl shadow-md border border-sky-100 p-6"
+            >
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-[#166cb7]">
+                    {appointment.doctor?.name || 'Doctor'}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {appointment.doctor?.specialization || 'Specialization not available'}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 text-sm text-gray-700">
+                    <p>
+                      <span className="font-semibold">Doctor Email:</span> {appointment.doctor?.email}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Doctor Phone:</span> {appointment.doctor?.phone}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Date:</span> {appointment.slot?.date}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Start Time:</span> {appointment.slot?.startTime}
+                    </p>
+                    <p>
+                      <span className="font-semibold">End Time:</span> {appointment.slot?.endTime}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Status:</span>{' '}
+                      <span
+                        className={`font-semibold ${
+                          appointment.status === 'Cancelled'
+                            ? 'text-red-600'
+                            : appointment.status === 'Completed'
+                            ? 'text-green-700'
+                            : appointment.status === 'Rescheduled'
+                            ? 'text-[#ff449e]'
+                            : 'text-[#609139]'
+                        }`}
+                      >
+                        {appointment.status}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {appointment.status !== 'Cancelled' && appointment.status !== 'Completed' && (
+                  <div className="w-full lg:w-80 space-y-3">
+                    <button
+                      onClick={() =>
+                        setRescheduleAppointmentId(
+                          rescheduleAppointmentId === appointment._id ? '' : appointment._id
+                        )
+                      }
+                      className="w-full rounded-xl border border-[#166cb7] text-[#166cb7] py-3 font-semibold hover:bg-sky-50 transition"
+                    >
+                      {rescheduleAppointmentId === appointment._id ? 'Close Reschedule' : 'Reschedule'}
+                    </button>
+
+                    <button
+                      onClick={() => handleCancel(appointment._id)}
+                      disabled={actionLoading === appointment._id}
+                      className="w-full rounded-xl bg-red-500 text-white py-3 font-semibold hover:opacity-90 transition disabled:opacity-70"
+                    >
+                      {actionLoading === appointment._id ? 'Processing...' : 'Cancel Appointment'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {rescheduleAppointmentId === appointment._id && (
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-bold text-[#166cb7] mb-3">Select a New Slot</h3>
+
+                  <select
+                    value={selectedSlotId}
+                    onChange={(e) => setSelectedSlotId(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
+                  >
+                    <option value="">Choose an available slot</option>
+                    {availableSlots.map((slot) => (
+                      <option key={slot._id} value={slot._id}>
+                        {slot.doctor?.name} | {slot.date} | {slot.startTime} - {slot.endTime}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={() => handleReschedule(appointment._id)}
+                    disabled={actionLoading === appointment._id}
+                    className="mt-4 rounded-xl bg-[#609139] text-white px-6 py-3 font-semibold hover:opacity-90 transition disabled:opacity-70"
+                  >
+                    {actionLoading === appointment._id ? 'Updating...' : 'Confirm Reschedule'}
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
