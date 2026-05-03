@@ -2,6 +2,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const mongoose = require('mongoose');
 const Appointment = require('../models/Appointment');
+const Notification = require('../models/Notification');
+const Slot = require('../models/Slot');
+const Doctor = require('../models/Doctor');
 const { updateAppointmentStatus } = require('../controllers/appointmentController');
 
 const { expect } = chai;
@@ -45,6 +48,10 @@ describe('Appointment Controller Test', () => {
     secondFind.populate.onFirstCall().returnsThis();
     secondFind.populate.onSecondCall().returnsThis();
     secondFind.populate.onThirdCall().resolves(populatedAppointment);
+    // Stub the new dependencies introduced by the NotificationFactory wiring
+    sinon.stub(Slot, 'findById').resolves(null);
+    sinon.stub(Doctor, 'findById').resolves(null);
+    sinon.stub(Notification, 'create').resolves({ _id: new mongoose.Types.ObjectId() });
 
     const res = {
       status: sinon.stub().returnsThis(),
