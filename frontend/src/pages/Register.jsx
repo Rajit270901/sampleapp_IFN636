@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../axiosConfig';
+import PasswordInput from '../components/PasswordInput';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -123,25 +124,21 @@ const Register = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               name="password"
-              placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
+              placeholder="Create a password"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-            <input
-              type="password"
+            <PasswordInput
               name="confirmPassword"
-              placeholder="Confirm your password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
+              placeholder="Confirm your password"
             />
           </div>
 
