@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ManageDoctors from './pages/ManageDoctors';
 import ManageSlots from './pages/ManageSlots';
 import AdminAppointments from './pages/AdminAppointments';
+import Notifications from './pages/Notifications';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, isAuthenticated } = useAuth();
@@ -85,6 +86,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['patient', 'admin']}>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <Notifications />
               </ProtectedRoute>
             }
           />

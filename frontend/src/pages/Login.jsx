@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../axiosConfig';
+import PasswordInput from '../components/PasswordInput';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -78,13 +79,11 @@ const Login = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               name="password"
-              placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
+              placeholder="Enter your password"
             />
           </div>
 
