@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import axiosInstance from '../axiosConfig';
-import Avatar from '../components/Avatar';
+import { useEffect, useState } from 'react'; // hooks for state and loading doctors https://www.w3schools.com/react/react_hooks.asp
+import { Link } from 'react-router-dom'; // link is used for navigation without page reload
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
+import Avatar from '../components/Avatar'; // avatar component for doctor initials
 
-// ─── Search icon SVG ───────────────────────────────────────
-const SearchIcon = ({ className }) => (
+// search icon svg used inside search box and button
+const SearchIcon = ({ className }) => ( // receives className as prop https://www.w3schools.com/react/react_props.asp
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -21,21 +21,21 @@ const SearchIcon = ({ className }) => (
   </svg>
 );
 
-function Doctors() {
-  const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+function Doctors() { // doctors listing page component https://www.w3schools.com/react/react_components.asp
+  const [doctors, setDoctors] = useState([]); // stores doctor list https://www.w3schools.com/react/react_usestate.asp
+  const [loading, setLoading] = useState(true); // shows loading while doctors are being fetched
+  const [error, setError] = useState(''); // stores error message if api fails
 
-  // Search filters
-  const [specialization, setSpecialization] = useState('');
-  const [availableOnly, setAvailableOnly] = useState(false);
+  // search filter values
+  const [specialization, setSpecialization] = useState(''); // stores specialization text typed by user
+  const [availableOnly, setAvailableOnly] = useState(false); // stores checkbox value
 
-  const fetchDoctors = async () => {
+  const fetchDoctors = async () => { // async because api call takes time https://www.w3schools.com/js/js_async.asp
     setLoading(true);
     setError('');
-    try {
-      // If no filters, hit the basic /api/doctors endpoint
-      // Otherwise hit /api/doctors/search (uses our SearchService + Adapter pattern)
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
+      // normal endpoint is used when there are no filters
+      // search endpoint is used when filter values are present
       const hasFilters = specialization || availableOnly;
       const url = hasFilters ? '/api/doctors/search' : '/api/doctors';
       const params = hasFilters
@@ -44,27 +44,27 @@ function Doctors() {
       const res = await axiosInstance.get(url, { params });
       setDoctors(res.data);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load doctors.');
+      setError(err?.response?.data?.message || 'Failed to load doctors.'); // optional chaining avoids error if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // runs once when the page opens https://www.w3schools.com/react/react_useeffect.asp
     fetchDoctors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const handleSearch = (e) => { // runs when search form is submitted
+    e.preventDefault(); // stops normal form page refresh https://www.w3schools.com/jsref/event_preventdefault.asp
     fetchDoctors();
   };
 
   const handleClear = () => {
     setSpecialization('');
     setAvailableOnly(false);
-    // Re-fetch with cleared filters on next tick
-    setTimeout(fetchDoctors, 0);
+    // small delay so state clears before fetching again
+    setTimeout(fetchDoctors, 0); // runs after current state update cycle https://www.w3schools.com/jsref/met_win_settimeout.asp
   };
 
   return (
@@ -77,7 +77,7 @@ function Doctors() {
         </p>
       </div>
 
-      {/* ─── Search bar (uses Adapter-pattern endpoint) ─────────── */}
+      {/* search form for filtering doctors */}
       <form
         onSubmit={handleSearch}
         className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4"
@@ -90,7 +90,7 @@ function Doctors() {
             <input
               type="text"
               value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
+              onChange={(e) => setSpecialization(e.target.value)} // updates specialization as user types https://www.w3schools.com/react/react_events.asp
               placeholder="e.g. Cardiology, Pediatrics..."
               className="w-full rounded-xl border border-gray-300 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
             />
@@ -103,7 +103,7 @@ function Doctors() {
             type="checkbox"
             id="availableOnly"
             checked={availableOnly}
-            onChange={(e) => setAvailableOnly(e.target.checked)}
+            onChange={(e) => setAvailableOnly(e.target.checked)} // stores checkbox true or false
             className="w-4 h-4 rounded border-gray-300 text-[#166cb7] focus:ring-[#166cb7]"
           />
           <label htmlFor="availableOnly" className="text-sm text-gray-700">
@@ -129,7 +129,7 @@ function Doctors() {
         </div>
       </form>
 
-      {/* ─── Results ─────────────────────────────────────────────── */}
+      {/* results area */}
       {loading && (
         <div className="text-gray-600">Loading doctors...</div>
       )}
@@ -145,7 +145,7 @@ function Doctors() {
 
       {!loading && !error && doctors.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {doctors.map((doctor) => (
+          {doctors.map((doctor) => ( // creates one card for each doctor https://www.w3schools.com/react/react_lists.asp
             <div
               key={doctor._id}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition"
@@ -163,7 +163,7 @@ function Doctors() {
                         doctor.isAvailable
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-600'
-                      }`}
+                      }`} // changes badge colour based on doctor availability
                     >
                       {doctor.isAvailable ? 'Available' : 'Unavailable'}
                     </span>
@@ -184,7 +184,7 @@ function Doctors() {
 
               <div className="mt-5">
                 <Link
-                  to={`/slots?doctor=${doctor._id}`}
+                  to={`/slots?doctor=${doctor._id}`} // opens slots page filtered by this doctor
                   className="inline-block w-full text-center rounded-xl bg-[#609139] text-white py-3 font-semibold hover:opacity-90 transition"
                 >
                   View Slots
@@ -198,4 +198,4 @@ function Doctors() {
   );
 }
 
-export default Doctors;
+export default Doctors; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

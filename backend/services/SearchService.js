@@ -1,29 +1,25 @@
-// services/SearchService.js
-//
-// Search service for the new Search & Filter feature.
-// Uses the SlotDateAdapter (Adapter pattern) to perform date-range
-// filtering on string-based slot dates.
+// slot dates are stored as strings so SlotDateAdapter is used for date range filtering
+// https://www.w3schools.com/js/js_dates.asp
 
-const Doctor = require("../models/Doctor");
-const Slot = require("../models/Slot");
-const SlotDateAdapter = require("../adapters/SlotDateAdapter");
+const Doctor = require("../models/Doctor"); // importing doctor model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const Slot = require("../models/Slot"); // importing slot model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const SlotDateAdapter = require("../adapters/SlotDateAdapter"); // adapter converts slot string dates into Date objects
 
-class SearchService {
-  // Filter doctors by specialization keyword (case-insensitive partial match)
-  // and optionally by availability.
-  static async searchDoctors({ specialization, availableOnly }) {
+class SearchService { // class keeps search logic together https://www.w3schools.com/js/js_classes.asp
+  // searches doctors by specialization and availability
+  static async searchDoctors({ specialization, availableOnly }) { // static async method https://www.w3schools.com/js/js_class_static.asp
     const query = {};
     if (specialization) {
-      query.specialization = { $regex: specialization, $options: "i" };
+      query.specialization = { $regex: specialization, $options: "i" }; // regex allows partial and case insensitive search https://www.w3schools.com/js/js_regexp.asp
     }
     if (availableOnly === "true" || availableOnly === true) {
-      query.isAvailable = true;
+      query.isAvailable = true; // only returns available doctors when requested
     }
     return await Doctor.find(query);
   }
 
-  // Filter slots by doctor, date range, and availability.
-  // Uses the Adapter to perform the date-range comparison.
+  // searches slots by doctor date range and availability
+  // adapter is used here because normal string date comparison is not reliable
   static async searchSlots({ doctorId, from, to, availableOnly }) {
     const query = {};
     if (doctorId) query.doctor = doctorId;
@@ -34,20 +30,20 @@ class SearchService {
       "name specialization email phone"
     );
 
-    // If no date range supplied, return everything matching the basic query.
+    // if no date range is selected then return basic filtered results
     if (!from && !to) return slots;
 
-    // Wrap each slot in the adapter and filter by range.
-    return slots.filter((slot) => {
-      try {
+    // each slot is wrapped in adapter before checking date range
+    return slots.filter((slot) => { // filter keeps only slots that match the range https://www.w3schools.com/jsref/jsref_filter.asp
+      try { // used because some slot dates may not parse properly https://www.w3schools.com/js/js_errors.asp
         const adapter = new SlotDateAdapter(slot);
         return adapter.isInRange(from, to);
       } catch (err) {
-        // Malformed date — skip rather than crash the whole search
+        // skip bad date instead of crashing whole search
         return false;
       }
     });
   }
 }
 
-module.exports = SearchService;
+module.exports = SearchService; // exporting service so routes can use it https://www.w3schools.com/nodejs/nodejs_modules.asp

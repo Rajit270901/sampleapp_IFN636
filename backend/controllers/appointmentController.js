@@ -1,18 +1,17 @@
-const Appointment = require('../models/Appointment');
-const Slot = require('../models/Slot');
-const { NotificationFactory } = require('../services/NotificationFactory');
-const AppointmentFacade = require('../services/AppointmentFacade');
+const Appointment = require('../models/Appointment'); // importing appointment model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const Slot = require('../models/Slot'); // importing slot model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const { NotificationFactory } = require('../services/NotificationFactory'); // using factory to create notifications
+const AppointmentFacade = require('../services/AppointmentFacade'); // facade keeps booking logic in one place
 
-// ─── Helper: format slot for human-readable notification messages ──────
+// helper to make the slot date and time readable for notification messages
 const formatSlotInfo = (slot) => {
   if (!slot) return "scheduled time";
-  return `${slot.date} ${slot.startTime}-${slot.endTime}`;
+  return `${slot.date} ${slot.startTime}-${slot.endTime}`; // template string used to join slot values https://www.w3schools.com/js/js_string_templates.asp
 };
 
-// ─── Helper: dispatch a notification using the Factory pattern ─────────
-// Wrapped in try/catch so notification failures never break the main operation.
-const dispatchNotification = async (type, data) => {
-  try {
+// helper for sending notification using factory pattern
+const dispatchNotification = async (type, data) => { // async because saving notification takes time https://www.w3schools.com/js/js_async.asp
+  try { // handles errors safely https://www.w3schools.com/js/js_errors.asp
     const notification = NotificationFactory.create(type, data);
     await notification.save();
   } catch (err) {
@@ -22,19 +21,16 @@ const dispatchNotification = async (type, data) => {
 
 const bookAppointment = async (req, res) => {
   try {
-    const { doctor, slot } = req.body;
+    const { doctor, slot } = req.body; // getting doctor and slot from request body https://www.w3schools.com/js/js_destructuring.asp
 
-    // Facade pattern: one call orchestrates slot validation,
-    // appointment creation, slot marking, and notification dispatch.
     const populatedAppointment = await AppointmentFacade.bookAppointmentForPatient({
       patientId: req.user.id,
       doctorId: doctor,
       slotId: slot,
     });
 
-    res.status(201).json(populatedAppointment);
+    res.status(201).json(populatedAppointment); // sends created response as json https://www.w3schools.com/nodejs/nodejs_express.asp
   } catch (error) {
-    // Facade throws errors with statusCode attached; respect them
     const status = error.statusCode || 500;
     res.status(status).json({ message: error.message });
   }
@@ -103,11 +99,11 @@ const rescheduleAppointment = async (req, res) => {
     appointment.status = 'Rescheduled';
     await appointment.save();
 
-    // Factory pattern dispatch
+    // creating rescheduled notification through factory
     await dispatchNotification('Rescheduled', {
       recipient: req.user.id,
       appointment: appointment._id,
-      doctorName: newSlot.doctor?.name || 'your doctor',
+      doctorName: newSlot.doctor?.name || 'your doctor', // https://www.w3schools.com/js/js_2020.asp
       slotInfo: formatSlotInfo(newSlot),
     });
 
@@ -147,7 +143,7 @@ const cancelAppointment = async (req, res) => {
     appointment.status = 'Cancelled';
     await appointment.save();
 
-    // Factory pattern dispatch
+    // creating cancelled notification through factory
     await dispatchNotification('Cancelled', {
       recipient: req.user.id,
       appointment: appointment._id,
@@ -171,22 +167,19 @@ const updateAppointmentStatus = async (req, res) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
-    appointment.status = status || appointment.status;
+    appointment.status = status || appointment.status; // keeps old status if no new status is sent
     await appointment.save();
 
-    // Look up slot and doctor separately (after status check) so the
-    // notification dispatch has the data it needs without breaking the
-    // simple stub-based mocha test that doesn't chain .populate()
+    // getting extra slot and doctor details for notification
     let slotData = null;
     let doctorData = null;
     try {
       slotData = await Slot.findById(appointment.slot);
       doctorData = await require('../models/Doctor').findById(appointment.doctor);
     } catch (e) {
-      // ignore — notification will use fallback values
     }
 
-    // Factory pattern dispatch — notify the patient that admin updated their appointment
+    // creating status update notification for the patient
     await dispatchNotification('StatusUpdate', {
       recipient: appointment.patient,
       appointment: appointment._id,
@@ -206,7 +199,7 @@ const updateAppointmentStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+module.exports = { // exporting controller functions so routes can use them https://www.w3schools.com/nodejs/nodejs_modules.asp
   bookAppointment,
   getMyAppointments,
   getAllAppointments,

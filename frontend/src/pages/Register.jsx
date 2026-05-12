@@ -1,30 +1,30 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axiosInstance from '../axiosConfig';
-import PasswordInput from '../components/PasswordInput';
+import { useState } from 'react'; // useState stores form data loading and messages https://www.w3schools.com/react/react_usestate.asp
+import { useNavigate, Link } from 'react-router-dom'; // navigate redirects and Link changes page without refresh
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
+import PasswordInput from '../components/PasswordInput'; // reusable password input with show hide option
 
-const Register = () => {
+const Register = () => { // register page component https://www.w3schools.com/react/react_components.asp
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     address: '',
     password: '',
     confirmPassword: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const navigate = useNavigate();
+  }); // stores all register form values
+  const [loading, setLoading] = useState(false); // controls register button loading
+  const [error, setError] = useState(''); // stores error message
+  const [success, setSuccess] = useState(''); // stores success message
+  const navigate = useNavigate(); // used to redirect user after registration
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { // runs whenever an input changes https://www.w3schools.com/react/react_events.asp
     setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
+      ...prev, // keeps other form fields unchanged https://www.w3schools.com/react/react_es6_spread.asp
+      [e.target.name]: e.target.value, // updates field using input name
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => { // async because register api call takes time https://www.w3schools.com/js/js_async.asp
+    e.preventDefault(); // stops form from refreshing the page https://www.w3schools.com/jsref/event_preventdefault.asp
     setError('');
     setSuccess('');
 
@@ -38,7 +38,7 @@ const Register = () => {
       return;
     }
 
-    try {
+    try { // catches register errors https://www.w3schools.com/js/js_errors.asp
       setLoading(true);
 
       await axiosInstance.post('/api/auth/register', {
@@ -46,16 +46,16 @@ const Register = () => {
         email: formData.email,
         address: formData.address,
         password: formData.password,
-      });
+      }); // sends new user details to backend
 
       setSuccess('Registration successful. Redirecting to login...');
       setTimeout(() => {
-        navigate('/login');
-      }, 1200);
+        navigate('/login'); // sends user to login after short delay
+      }, 1200); // waits 1.2 seconds before redirect https://www.w3schools.com/jsref/met_win_settimeout.asp
     } catch (error) {
-      setError(error?.response?.data?.message || 'Registration failed. Please try again.');
+      setError(error?.response?.data?.message || 'Registration failed. Please try again.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
@@ -162,4 +162,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Register; // exporting register page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

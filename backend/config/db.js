@@ -1,45 +1,35 @@
-// config/db.js
-// Singleton Pattern: ensures only ONE database connection instance
-// exists across the entire application lifecycle.
-const mongoose = require("mongoose");
+// Singleton Pattern: keeps only one database connection object for the app lifecycle.
+// Reference: https://www.w3schools.com/nodejs/nodejs_mongodb.asp
+const mongoose = require("mongoose"); // Imports mongoose so Node.js can connect to MongoDB.
 
-class Database {
-  // Private static field holds the single instance.
-  // Using # would enforce true privacy, but underscore is the
-  // conventional JavaScript indicator for "do not access directly".
-  static _instance = null;
+class Database { // Class used to group database connection logic. Reference: https://www.w3schools.com/js/js_classes.asp
+  static _instance = null; // Reference: https://www.w3schools.com/js/js_class_static.asp
 
-  // Private flag tracks whether we've already connected
-  static _isConnected = false;
+  static _isConnected = false; // Reference: https://www.w3schools.com/js/js_class_static.asp
 
-  constructor() {
-    // Guard against external instantiation: if an instance exists,
-    // return it instead of creating a new one.
+  constructor() { // Runs when new Database() is called. Reference: https://www.w3schools.com/js/js_class_intro.asp
     if (Database._instance) {
       return Database._instance;
     }
     Database._instance = this;
   }
 
-  // Static accessor: the global access point required by the Singleton pattern.
-  // Callers use Database.getInstance() rather than new Database().
-  static getInstance() {
+  // main Singleton behaviour: callers use Database.getInstance().
+  static getInstance() { // Reference: https://www.w3schools.com/js/js_class_static.asp
     if (!Database._instance) {
       Database._instance = new Database();
     }
     return Database._instance;
   }
 
-  // Connects to MongoDB. Idempotent: calling it twice does NOT
-  // open a second connection.
-  async connect() {
+  async connect() { // async allows await to be used inside this method. Reference: https://www.w3schools.com/js/js_async.asp
     if (Database._isConnected) {
       console.log("MongoDB already connected, reusing existing connection");
       return;
     }
 
-    try {
-      await mongoose.connect(process.env.MONGO_URI);
+    try { // try/catch handles connection errors without crashing silently. Reference: https://www.w3schools.com/js/js_errors.asp
+      await mongoose.connect(process.env.MONGO_URI); // Waits for MongoDB connection before continuing. Reference: https://www.w3schools.com/js/js_async.asp
       Database._isConnected = true;
       console.log("MongoDB connected successfully");
     } catch (error) {
@@ -48,19 +38,16 @@ class Database {
     }
   }
 
-  // Returns the underlying mongoose connection if needed elsewhere.
+  // Gives access to the active mongoose connection if another part of the app needs it.
   getConnection() {
     return mongoose.connection;
   }
 }
 
-// Export a function that delegates to the singleton.
-// This preserves backward compatibility with the existing call site
-// in server.js (`connectDB()`), so we don't have to refactor that too.
-const connectDB = async () => {
+const connectDB = async () => { // Arrow function syntax. Reference: https://www.w3schools.com/js/js_arrow_function.asp
   const db = Database.getInstance();
   await db.connect();
 };
 
-module.exports = connectDB;
-module.exports.Database = Database; // Also export the class so tests/screenshots can reference it
+module.exports = connectDB; // Exports connectDB for use in other files. Reference: https://www.w3schools.com/nodejs/nodejs_modules.asp
+module.exports.Database = Database; 

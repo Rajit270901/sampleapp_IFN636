@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../axiosConfig';
+import { useEffect, useState } from 'react'; // hooks for state and loading data https://www.w3schools.com/react/react_hooks.asp
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
 const initialForm = {
   doctor: '',
@@ -9,53 +9,53 @@ const initialForm = {
   isBooked: false,
 };
 
-function ManageSlots() {
-  const [slots, setSlots] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [formData, setFormData] = useState(initialForm);
-  const [editingSlotId, setEditingSlotId] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+function ManageSlots() { // admin page for slot crud https://www.w3schools.com/react/react_components.asp
+  const [slots, setSlots] = useState([]); // stores slot list https://www.w3schools.com/react/react_usestate.asp
+  const [doctors, setDoctors] = useState([]); // stores doctors for dropdown
+  const [formData, setFormData] = useState(initialForm); // stores add edit form values
+  const [editingSlotId, setEditingSlotId] = useState(''); // stores slot id when editing
+  const [loading, setLoading] = useState(true); // loading for slot records
+  const [submitLoading, setSubmitLoading] = useState(false); // loading for add update button
+  const [actionLoading, setActionLoading] = useState(''); // stores slot id while delete is running
+  const [error, setError] = useState(''); // stores error message
+  const [message, setMessage] = useState(''); // stores success message
 
-  const fetchData = async () => {
-    try {
+  const fetchData = async () => { // async because api calls take time https://www.w3schools.com/js/js_async.asp
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
       setLoading(true);
       const [slotsRes, doctorsRes] = await Promise.all([
         axiosInstance.get('/api/slots'),
         axiosInstance.get('/api/doctors'),
-      ]);
+      ]); // loads slots and doctors together https://www.w3schools.com/js/js_promise.asp
       setSlots(slotsRes.data);
       setDoctors(doctorsRes.data);
       setError('');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load slot data.');
+      setError(err?.response?.data?.message || 'Failed to load slot data.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // runs once when page loads https://www.w3schools.com/react/react_useeffect.asp
     fetchData();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e) => { // runs when any form input changes https://www.w3schools.com/react/react_events.asp
+    const { name, value, type, checked } = e.target; // gets input values from event https://www.w3schools.com/js/js_destructuring.asp
     setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      ...prev, // keeps previous form values https://www.w3schools.com/react/react_es6_spread.asp
+      [name]: type === 'checkbox' ? checked : value, // checkbox uses checked but other inputs use value
     }));
   };
 
   const resetForm = () => {
-    setFormData(initialForm);
-    setEditingSlotId('');
+    setFormData(initialForm); // clears form back to default values
+    setEditingSlotId(''); // exits edit mode
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // stops form from refreshing page https://www.w3schools.com/jsref/event_preventdefault.asp
     setError('');
     setMessage('');
 
@@ -63,15 +63,15 @@ function ManageSlots() {
       setSubmitLoading(true);
 
       if (editingSlotId) {
-        await axiosInstance.put(`/api/slots/${editingSlotId}`, formData);
+        await axiosInstance.put(`/api/slots/${editingSlotId}`, formData); // updates existing slot using id https://www.w3schools.com/js/js_string_templates.asp
         setMessage('Slot updated successfully.');
       } else {
-        await axiosInstance.post('/api/slots', formData);
+        await axiosInstance.post('/api/slots', formData); // creates new slot
         setMessage('Slot created successfully.');
       }
 
       resetForm();
-      await fetchData();
+      await fetchData(); // reloads slots and doctors after saving
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to save slot.');
     } finally {
@@ -80,13 +80,13 @@ function ManageSlots() {
   };
 
   const handleEdit = (slot) => {
-    setEditingSlotId(slot._id);
+    setEditingSlotId(slot._id); // puts form into edit mode
     setFormData({
-      doctor: slot.doctor?._id || '',
+      doctor: slot.doctor?._id || '', // optional chaining avoids error if doctor is missing https://www.w3schools.com/js/js_2020.asp
       date: slot.date || '',
       startTime: slot.startTime || '',
       endTime: slot.endTime || '',
-      isBooked: !!slot.isBooked,
+      isBooked: !!slot.isBooked, // converts value into true or false
     });
     setMessage('');
     setError('');
@@ -98,12 +98,12 @@ function ManageSlots() {
       setError('');
       setMessage('');
 
-      await axiosInstance.delete(`/api/slots/${slotId}`);
+      await axiosInstance.delete(`/api/slots/${slotId}`); // deletes selected slot
       setMessage('Slot deleted successfully.');
       await fetchData();
 
       if (editingSlotId === slotId) {
-        resetForm();
+        resetForm(); // clears form if deleted slot was being edited
       }
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to delete slot.');
@@ -151,7 +151,7 @@ function ManageSlots() {
                 required
               >
                 <option value="">Select doctor</option>
-                {doctors.map((doctor) => (
+                {doctors.map((doctor) => ( // shows each doctor in dropdown https://www.w3schools.com/react/react_lists.asp
                   <option key={doctor._id} value={doctor._id}>
                     {doctor.name} - {doctor.specialization}
                   </option>
@@ -244,7 +244,7 @@ function ManageSlots() {
             <p className="text-gray-600">No slots found.</p>
           ) : (
             <div className="space-y-4">
-              {slots.map((slot) => (
+              {slots.map((slot) => ( // shows each slot as one record card
                 <div
                   key={slot._id}
                   className="border border-gray-200 rounded-2xl p-5 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4"
@@ -295,4 +295,4 @@ function ManageSlots() {
   );
 }
 
-export default ManageSlots;
+export default ManageSlots; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

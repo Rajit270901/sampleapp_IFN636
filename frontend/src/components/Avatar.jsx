@@ -1,7 +1,3 @@
-// Avatar.jsx — initials-on-color avatar (no images needed)
-// Generates a deterministic color from a name string so the same
-// person always gets the same color, but different doctors look different.
-
 const COLORS = [
   { bg: 'bg-blue-100', text: 'text-blue-700' },
   { bg: 'bg-green-100', text: 'text-green-700' },
@@ -13,27 +9,24 @@ const COLORS = [
   { bg: 'bg-rose-100', text: 'text-rose-700' },
 ];
 
-const getInitials = (name) => {
+const getInitials = (name) => { // arrow function for getting initials https://www.w3schools.com/js/js_arrow_function.asp
   if (!name) return '?';
-  // "Dr. Sarah Lee" → "SL"
-  // "Dr Sarah Lee" → "SL"
-  // "Sarah Lee"    → "SL"
-  // "Sarah"        → "S"
-  const cleaned = name.replace(/^Dr\.?\s+/i, '').trim();
-  const parts = cleaned.split(/\s+/).filter(Boolean);
+  // removes Dr or Dr. from start then uses first and last name initials
+  const cleaned = name.replace(/^Dr\.?\s+/i, '').trim(); // regex used to clean doctor title https://www.w3schools.com/js/js_regexp.asp
+  const parts = cleaned.split(/\s+/).filter(Boolean); // split separates words and filter removes empty values https://www.w3schools.com/jsref/jsref_split.asp
   if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0][0].toUpperCase();
+  if (parts.length === 1) return parts[0][0].toUpperCase(); // makes single initial uppercase https://www.w3schools.com/jsref/jsref_touppercase.asp
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
 const getColorFromName = (name) => {
   if (!name) return COLORS[0];
-  // Simple hash: sum char codes, mod by color count
-  const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  // basic hash so each name gets a consistent colour
+  const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0); // reduce adds character codes together https://www.w3schools.com/jsref/jsref_reduce.asp
   return COLORS[hash % COLORS.length];
 };
 
-const Avatar = ({ name, size = 'md' }) => {
+const Avatar = ({ name, size = 'md' }) => { // component props with default size https://www.w3schools.com/react/react_props.asp
   const initials = getInitials(name);
   const color = getColorFromName(name);
 
@@ -45,11 +38,11 @@ const Avatar = ({ name, size = 'md' }) => {
 
   return (
     <div
-      className={`${sizeClasses[size]} ${color.bg} ${color.text} rounded-full flex items-center justify-center font-bold flex-shrink-0`}
+      className={`${sizeClasses[size]} ${color.bg} ${color.text} rounded-full flex items-center justify-center font-bold flex-shrink-0`} // template string combines classes https://www.w3schools.com/js/js_string_templates.asp
     >
       {initials}
     </div>
   );
 };
 
-export default Avatar;
+export default Avatar; // exporting component so it can be used in other files https://www.w3schools.com/react/react_es6_modules.asp

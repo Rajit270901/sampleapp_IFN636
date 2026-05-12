@@ -1,38 +1,38 @@
 .App {
-  text-align: center;
+  text-align: center; /* centers text inside the main app container https://www.w3schools.com/cssref/pr_text_text-align.php */
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+  height: 40vmin; /* logo height changes based on viewport size https://www.w3schools.com/cssref/css_units.php */
+  pointer-events: none; /* stops mouse interaction on the logo https://www.w3schools.com/cssref/css3_pr_pointer-events.php */
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) { /* only runs animation when user has not reduced motion https://www.w3schools.com/css/css3_mediaqueries.asp */
   .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+    animation: App-logo-spin infinite 20s linear; /* applies the spinning animation https://www.w3schools.com/css/css3_animations.asp */
   }
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: #282c34; /* dark header background https://www.w3schools.com/cssref/pr_background-color.php */
+  min-height: 100vh; /* makes header at least full screen height https://www.w3schools.com/cssref/pr_dim_min-height.php */
+  display: flex; /* flexbox used to centre content https://www.w3schools.com/css/css3_flexbox.asp */
+  flex-direction: column; /* stacks items vertically https://www.w3schools.com/cssref/css3_pr_flex-direction.php */
+  align-items: center; /* centres items horizontally in flexbox https://www.w3schools.com/cssref/css3_pr_align-items.php */
+  justify-content: center; /* centres items vertically in flexbox https://www.w3schools.com/cssref/css3_pr_justify-content.php */
+  font-size: calc(10px + 2vmin); /* responsive font size calculation https://www.w3schools.com/cssref/func_calc.php */
+  color: white; /* text colour https://www.w3schools.com/cssref/pr_text_color.php */
 }
 
 .App-link {
-  color: #61dafb;
+  color: #61dafb; /* link colour https://www.w3schools.com/cssref/pr_text_color.php */
 }
 
-@keyframes App-logo-spin {
+@keyframes App-logo-spin { /* defines the custom spin animation https://www.w3schools.com/cssref/css3_pr_animation-keyframes.php */
   from {
-    transform: rotate(0deg);
+    transform: rotate(0deg); /* starts without rotation https://www.w3schools.com/cssref/css3_pr_transform.php */
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* ends with one full rotation */
   }
 }

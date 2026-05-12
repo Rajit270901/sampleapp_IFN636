@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../axiosConfig';
+import { useEffect, useState } from 'react'; // hooks for state and loading data https://www.w3schools.com/react/react_hooks.asp
+import axiosInstance from '../axiosConfig'; // custom axios setup for api requests
 
-function AdminAppointments() {
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+function AdminAppointments() { // admin page component https://www.w3schools.com/react/react_components.asp
+  const [appointments, setAppointments] = useState([]); // stores all appointments https://www.w3schools.com/react/react_usestate.asp
+  const [loading, setLoading] = useState(true); // shows loading while data is being fetched
+  const [actionLoading, setActionLoading] = useState(''); // stores appointment id when status update is running
+  const [error, setError] = useState(''); // stores error message
+  const [message, setMessage] = useState(''); // stores success message
 
-  const statusOptions = ['Booked', 'Rescheduled', 'Cancelled', 'Completed'];
+  const statusOptions = ['Booked', 'Rescheduled', 'Cancelled', 'Completed']; // status values admin can select
 
-  const fetchAppointments = async () => {
-    try {
+  const fetchAppointments = async () => { // async because api call takes time https://www.w3schools.com/js/js_async.asp
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
       setLoading(true);
       const res = await axiosInstance.get('/api/appointments');
       setAppointments(res.data);
       setError('');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load appointments.');
+      setError(err?.response?.data?.message || 'Failed to load appointments.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // finally runs whether request succeeds or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // runs once when page loads https://www.w3schools.com/react/react_useeffect.asp
     fetchAppointments();
   }, []);
 
@@ -33,9 +33,9 @@ function AdminAppointments() {
       setError('');
       setMessage('');
 
-      await axiosInstance.put(`/api/appointments/${appointmentId}/status`, { status });
+      await axiosInstance.put(`/api/appointments/${appointmentId}/status`, { status }); // template string puts appointment id into url https://www.w3schools.com/js/js_string_templates.asp
       setMessage('Appointment status updated successfully.');
-      await fetchAppointments();
+      await fetchAppointments(); // reloads appointments after update
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to update appointment status.');
     } finally {
@@ -75,7 +75,7 @@ function AdminAppointments() {
         </div>
       ) : (
         <div className="space-y-6">
-          {appointments.map((appointment) => (
+          {appointments.map((appointment) => ( // maps each appointment into a card https://www.w3schools.com/react/react_lists.asp
             <div
               key={appointment._id}
               className="bg-white rounded-2xl shadow-md border border-sky-100 p-6"
@@ -115,7 +115,7 @@ function AdminAppointments() {
                             : appointment.status === 'Rescheduled'
                             ? 'text-[#ff449e]'
                             : 'text-[#609139]'
-                        }`}
+                        }`} // changes status colour based on value
                       >
                         {appointment.status}
                       </span>
@@ -123,7 +123,7 @@ function AdminAppointments() {
 
                     <select
                       defaultValue={appointment.status}
-                      onChange={(e) => handleStatusChange(appointment._id, e.target.value)}
+                      onChange={(e) => handleStatusChange(appointment._id, e.target.value)} // updates status when admin selects new value https://www.w3schools.com/react/react_events.asp
                       disabled={actionLoading === appointment._id}
                       className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
                     >
@@ -148,4 +148,4 @@ function AdminAppointments() {
   );
 }
 
-export default AdminAppointments;
+export default AdminAppointments; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

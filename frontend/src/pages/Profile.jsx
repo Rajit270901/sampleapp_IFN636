@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axiosInstance from '../axiosConfig';
+import { useState, useEffect } from 'react'; // hooks for form state and loading profile data https://www.w3schools.com/react/react_hooks.asp
+import { useAuth } from '../context/AuthContext'; // gets current user and login update function
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
-const Profile = () => {
-  const { user, login } = useAuth();
+const Profile = () => { // profile page component https://www.w3schools.com/react/react_components.asp
+  const { user, login } = useAuth(); // using auth context values
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     address: '',
     role: '',
-  });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  }); // stores profile form values https://www.w3schools.com/react/react_usestate.asp
+  const [loading, setLoading] = useState(true); // controls loading screen
+  const [saving, setSaving] = useState(false); // controls update button loading
+  const [error, setError] = useState(''); // stores error message
+  const [message, setMessage] = useState(''); // stores success message
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
+  useEffect(() => { // runs once when profile page opens https://www.w3schools.com/react/react_useeffect.asp
+    const fetchProfile = async () => { // async because api request takes time https://www.w3schools.com/js/js_async.asp
+      try { // catches api errors https://www.w3schools.com/js/js_errors.asp
         setLoading(true);
         setError('');
         const response = await axiosInstance.get('/api/auth/profile');
@@ -29,24 +29,24 @@ const Profile = () => {
           role: response.data.role || '',
         });
       } catch (error) {
-        setError(error?.response?.data?.message || 'Failed to fetch profile.');
+        setError(error?.response?.data?.message || 'Failed to fetch profile.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
       } finally {
-        setLoading(false);
+        setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
       }
     };
 
     fetchProfile();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { // runs whenever user edits a field https://www.w3schools.com/react/react_events.asp
     setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
+      ...prev, // keeps other form fields unchanged https://www.w3schools.com/react/react_es6_spread.asp
+      [e.target.name]: e.target.value, // updates field based on input name
     }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // stops form refresh https://www.w3schools.com/jsref/event_preventdefault.asp
     setSaving(true);
     setError('');
     setMessage('');
@@ -56,7 +56,7 @@ const Profile = () => {
         name: formData.name,
         email: formData.email,
         address: formData.address,
-      });
+      }); // sends updated profile fields to backend
 
       setMessage('Profile updated successfully.');
 
@@ -67,7 +67,7 @@ const Profile = () => {
           email: response.data.email,
           address: response.data.address,
           role: response.data.role,
-        });
+        }); // updates saved auth user after profile change
       }
     } catch (error) {
       setError(error?.response?.data?.message || 'Failed to update profile.');
@@ -160,4 +160,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Profile; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

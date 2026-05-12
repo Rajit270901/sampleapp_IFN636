@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import axiosInstance from '../axiosConfig';
-import PasswordInput from '../components/PasswordInput';
+import { useState } from 'react'; // useState stores form values loading and errors https://www.w3schools.com/react/react_usestate.asp
+import { useAuth } from '../context/AuthContext'; // gets login function from auth context
+import { useNavigate, Link } from 'react-router-dom'; // navigate redirects and Link moves pages without refresh
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
+import PasswordInput from '../components/PasswordInput'; // reusable password field with show hide option
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const Login = () => { // login page component https://www.w3schools.com/react/react_components.asp
+  const [formData, setFormData] = useState({ email: '', password: '' }); // stores email and password typed by user
+  const [loading, setLoading] = useState(false); // used to disable button while login is running
+  const [error, setError] = useState(''); // stores login error message
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // used to send user to correct page after login
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { // runs whenever input value changes https://www.w3schools.com/react/react_events.asp
     setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
+      ...prev, // keeps old form values https://www.w3schools.com/react/react_es6_spread.asp
+      [e.target.name]: e.target.value, // updates the field that matches input name
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => { // async because login api call takes time https://www.w3schools.com/js/js_async.asp
+    e.preventDefault(); // stops form from refreshing the page https://www.w3schools.com/jsref/event_preventdefault.asp
     setError('');
 
     if (!formData.email || !formData.password) {
@@ -27,20 +27,20 @@ const Login = () => {
       return;
     }
 
-    try {
+    try { // catches login errors https://www.w3schools.com/js/js_errors.asp
       setLoading(true);
       const response = await axiosInstance.post('/api/auth/login', formData);
-      login(response.data);
+      login(response.data); // saves logged in user data in auth context
 
       if (response.data.role === 'admin') {
-        navigate('/admin');
+        navigate('/admin'); // admin goes to admin dashboard
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard'); // patient goes to normal dashboard
       }
     } catch (error) {
-      setError(error?.response?.data?.message || 'Login failed. Please try again.');
+      setError(error?.response?.data?.message || 'Login failed. Please try again.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether login works or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
@@ -107,4 +107,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login; // exporting login page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

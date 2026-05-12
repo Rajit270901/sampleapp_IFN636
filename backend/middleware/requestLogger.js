@@ -1,23 +1,13 @@
-// middleware/requestLogger.js
-//
-// Middleware Pattern (Chain of Responsibility):
-// One link in the request-processing chain. Mirrors Tutorial 7's
-// LoggingMiddleware example: each middleware performs ONE task,
-// then passes control to the next via next().
-//
-// In Express, the chain is:
-//   requestLogger → protect → adminOnly → validateBody → controller
-//
-// Each piece is independent and reorderable, demonstrating the
-// pattern's hallmark: separation of concerns, reusability, scalability.
+// middleware used to log each request before it goes to the next part
+// https://www.w3schools.com/nodejs/nodejs_express.asp
 
-const requestLogger = (req, res, next) => {
-  const ts = new Date().toISOString();
-  const userInfo = req.user ? `user=${req.user.id}` : "user=anonymous";
+const requestLogger = (req, res, next) => { // arrow function used for express middleware https://www.w3schools.com/js/js_arrow_function.asp
+  const ts = new Date().toISOString(); // gets current date and converts it into readable iso format https://www.w3schools.com/js/js_dates.asp
+  const userInfo = req.user ? `user=${req.user.id}` : "user=anonymous"; // if user exists show id otherwise anonymous https://www.w3schools.com/js/js_comparisons.asp
   console.log(
-    `[${ts}] ${req.method} ${req.originalUrl} ${userInfo} ip=${req.ip}`
+    `[${ts}] ${req.method} ${req.originalUrl} ${userInfo} ip=${req.ip}` // template string makes the log message easier to build https://www.w3schools.com/js/js_string_templates.asp
   );
-  next(); // pass control to the next middleware in the chain
+  next(); // sends the request to the next middleware https://www.w3schools.com/nodejs/nodejs_express.asp
 };
 
-module.exports = requestLogger;
+module.exports = requestLogger; // exporting so server/routes can use it https://www.w3schools.com/nodejs/nodejs_modules.asp

@@ -1,32 +1,16 @@
-// services/AppointmentFacade.js
-//
-// Facade Pattern: provides a simplified interface to the complex
-// appointment booking subsystem.
-//
-// Booking an appointment involves orchestrating 4 subsystems:
-//   1. Slot subsystem — validate slot exists & isn't booked
-//   2. Appointment subsystem — create the appointment record
-//   3. Slot subsystem (again) — mark slot as booked
-//   4. Notification subsystem — dispatch a notification via Factory
-//
-// Without the Facade, every controller calling these subsystems would
-// repeat the orchestration logic. The Facade wraps it in one method:
-// `bookAppointmentForPatient()` — the controller just calls that.
-//
-// Mirrors Tutorial 7's SmartHomeFacade.start_movie_night() example:
-// the user calls one method, and the facade internally coordinates
-// TV, sound, lights, and AC.
+// facade pattern used here to keep appointment booking in one simple method
+// https://www.w3schools.com/js/js_classes.asp
 
-const Appointment = require("../models/Appointment");
-const Slot = require("../models/Slot");
-const { NotificationFactory } = require("./NotificationFactory");
+const Appointment = require("../models/Appointment"); // appointment model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const Slot = require("../models/Slot"); // slot model https://www.w3schools.com/nodejs/nodejs_modules.asp
+const { NotificationFactory } = require("./NotificationFactory"); // factory used for creating notification objects
 
-class AppointmentFacade {
-  // ─── Subsystem 1: Slot validation ─────────────────────────
-  static async _validateSlot(slotId) {
+class AppointmentFacade { // class groups the booking steps in one place https://www.w3schools.com/js/js_classes.asp
+  // checks if the slot exists and is still free
+  static async _validateSlot(slotId) { // static async method because db lookup takes time https://www.w3schools.com/js/js_class_static.asp
     const slot = await Slot.findById(slotId).populate("doctor", "name");
     if (!slot) {
-      const err = new Error("Slot not found");
+      const err = new Error("Slot not found"); // creates an error object https://www.w3schools.com/js/js_errors.asp
       err.statusCode = 404;
       throw err;
     }
@@ -38,7 +22,7 @@ class AppointmentFacade {
     return slot;
   }
 
-  // ─── Subsystem 2: Appointment creation ────────────────────
+  // creates the appointment record
   static async _createAppointment(patientId, doctorId, slotId) {
     return await Appointment.create({
       patient: patientId,
@@ -48,38 +32,37 @@ class AppointmentFacade {
     });
   }
 
-  // ─── Subsystem 3: Mark slot as booked ─────────────────────
+  // updates the slot so it cannot be booked again
   static async _markSlotBooked(slot) {
     slot.isBooked = true;
-    await slot.save();
+    await slot.save(); // saves the changed slot back to database https://www.w3schools.com/js/js_async.asp
   }
 
-  // ─── Subsystem 4: Dispatch notification (uses Factory) ───
+  // sends notification but booking should still work even if this fails
   static async _notifyPatient(patientId, appointment, slot) {
-    try {
+    try { // used because notification failure should be handled safely https://www.w3schools.com/js/js_errors.asp
       const notification = NotificationFactory.create("Booked", {
         recipient: patientId,
         appointment: appointment._id,
-        doctorName: slot.doctor?.name || "your doctor",
-        slotInfo: `${slot.date} ${slot.startTime}-${slot.endTime}`,
+        doctorName: slot.doctor?.name || "your doctor", // optional chaining avoids error if doctor is missing https://www.w3schools.com/js/js_2020.asp
+        slotInfo: `${slot.date} ${slot.startTime}-${slot.endTime}`, // template string for joining slot info https://www.w3schools.com/js/js_string_templates.asp
       });
       await notification.save();
     } catch (err) {
-      // Notifications are best-effort — never fail the booking because of a notification problem
+      // notification is extra so it should not cancel the booking
       console.error("Notification dispatch failed (Booked):", err.message);
     }
   }
 
-  // ─── PUBLIC FACADE METHOD ─────────────────────────────────
-  // Single high-level method that orchestrates all 4 subsystems.
-  // Controllers call this instead of coordinating the subsystems themselves.
+  // main facade method used by controller
+  // controller only calls this instead of doing all booking steps itself
   static async bookAppointmentForPatient({ patientId, doctorId, slotId }) {
     const slot = await this._validateSlot(slotId);
     const appointment = await this._createAppointment(patientId, doctorId, slotId);
     await this._markSlotBooked(slot);
     await this._notifyPatient(patientId, appointment, slot);
 
-    // Return the populated appointment for the response
+    // returning appointment with patient doctor and slot details included
     return await Appointment.findById(appointment._id)
       .populate("patient", "name email role")
       .populate("doctor", "name specialization email phone")
@@ -87,4 +70,4 @@ class AppointmentFacade {
   }
 }
 
-module.exports = AppointmentFacade;
+module.exports = AppointmentFacade; // exporting facade so controller can use it https://www.w3schools.com/nodejs/nodejs_modules.asp

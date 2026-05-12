@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../axiosConfig';
+import { useEffect, useState } from 'react'; // hooks for state and loading data https://www.w3schools.com/react/react_hooks.asp
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
-function Appointments() {
-  const [appointments, setAppointments] = useState([]);
-  const [availableSlots, setAvailableSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [actionLoading, setActionLoading] = useState('');
-  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState('');
-  const [selectedSlotId, setSelectedSlotId] = useState('');
+function Appointments() { // patient appointments page component https://www.w3schools.com/react/react_components.asp
+  const [appointments, setAppointments] = useState([]); // stores user appointments https://www.w3schools.com/react/react_usestate.asp
+  const [availableSlots, setAvailableSlots] = useState([]); // stores slots user can reschedule to
+  const [loading, setLoading] = useState(true); // controls first loading screen
+  const [error, setError] = useState(''); // stores error messages
+  const [message, setMessage] = useState(''); // stores success messages
+  const [actionLoading, setActionLoading] = useState(''); // stores appointment id while cancel or reschedule is running
+  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState(''); // stores which appointment has reschedule form open
+  const [selectedSlotId, setSelectedSlotId] = useState(''); // stores selected new slot id
 
-  const fetchAppointments = async () => {
-    try {
+  const fetchAppointments = async () => { // async because api request takes time https://www.w3schools.com/js/js_async.asp
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
       const res = await axiosInstance.get('/api/appointments/my');
       setAppointments(res.data);
       setError('');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load appointments.');
+      setError(err?.response?.data?.message || 'Failed to load appointments.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     }
   };
 
@@ -30,13 +30,13 @@ function Appointments() {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // runs once when page loads https://www.w3schools.com/react/react_useeffect.asp
     const loadData = async () => {
       try {
         setLoading(true);
-        await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
+        await Promise.all([fetchAppointments(), fetchAvailableSlots()]); // loads appointments and slots together https://www.w3schools.com/js/js_promise.asp
       } finally {
-        setLoading(false);
+        setLoading(false); // stops loading even if something fails https://www.w3schools.com/js/js_errors.asp
       }
     };
 
@@ -49,9 +49,9 @@ function Appointments() {
       setMessage('');
       setError('');
 
-      await axiosInstance.put(`/api/appointments/${appointmentId}/cancel`);
+      await axiosInstance.put(`/api/appointments/${appointmentId}/cancel`); // template string adds appointment id in url https://www.w3schools.com/js/js_string_templates.asp
       setMessage('Appointment cancelled successfully.');
-      await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
+      await Promise.all([fetchAppointments(), fetchAvailableSlots()]); // refreshes both lists after cancel
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to cancel appointment.');
     } finally {
@@ -77,7 +77,7 @@ function Appointments() {
       setMessage('Appointment rescheduled successfully.');
       setRescheduleAppointmentId('');
       setSelectedSlotId('');
-      await Promise.all([fetchAppointments(), fetchAvailableSlots()]);
+      await Promise.all([fetchAppointments(), fetchAvailableSlots()]); // reloads updated appointment and slot data
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to reschedule appointment.');
     } finally {
@@ -117,7 +117,7 @@ function Appointments() {
         </div>
       ) : (
         <div className="space-y-6">
-          {appointments.map((appointment) => (
+          {appointments.map((appointment) => ( // maps each appointment into a card https://www.w3schools.com/react/react_lists.asp
             <div
               key={appointment._id}
               className="bg-white rounded-2xl shadow-md border border-sky-100 p-6"
@@ -158,7 +158,7 @@ function Appointments() {
                             : appointment.status === 'Rescheduled'
                             ? 'text-[#ff449e]'
                             : 'text-[#609139]'
-                        }`}
+                        }`} // status colour changes based on appointment status
                       >
                         {appointment.status}
                       </span>
@@ -173,14 +173,14 @@ function Appointments() {
                         setRescheduleAppointmentId(
                           rescheduleAppointmentId === appointment._id ? '' : appointment._id
                         )
-                      }
+                      } // opens or closes reschedule section for this appointment
                       className="w-full rounded-xl border border-[#166cb7] text-[#166cb7] py-3 font-semibold hover:bg-sky-50 transition"
                     >
                       {rescheduleAppointmentId === appointment._id ? 'Close Reschedule' : 'Reschedule'}
                     </button>
 
                     <button
-                      onClick={() => handleCancel(appointment._id)}
+                      onClick={() => handleCancel(appointment._id)} // cancels this appointment https://www.w3schools.com/react/react_events.asp
                       disabled={actionLoading === appointment._id}
                       className="w-full rounded-xl bg-red-500 text-white py-3 font-semibold hover:opacity-90 transition disabled:opacity-70"
                     >
@@ -196,11 +196,11 @@ function Appointments() {
 
                   <select
                     value={selectedSlotId}
-                    onChange={(e) => setSelectedSlotId(e.target.value)}
+                    onChange={(e) => setSelectedSlotId(e.target.value)} // stores selected slot id when dropdown changes
                     className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
                   >
                     <option value="">Choose an available slot</option>
-                    {availableSlots.map((slot) => (
+                    {availableSlots.map((slot) => ( // lists all available slots in dropdown
                       <option key={slot._id} value={slot._id}>
                         {slot.doctor?.name} | {slot.date} | {slot.startTime} - {slot.endTime}
                       </option>
@@ -224,4 +224,4 @@ function Appointments() {
   );
 }
 
-export default Appointments;
+export default Appointments; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp
