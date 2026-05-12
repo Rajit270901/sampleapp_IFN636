@@ -4,31 +4,74 @@ on:
   push:
     branches:
       - main
-      - feature/**
-  pull_request:
-    branches:
-      - main
 
 jobs:
   test:
-    name: Run Backend Tests
-    runs-on: ubuntu-latest
+    name: Run Tests
+    runs-on: self-hosted
 
-    defaults:
-      run:
-        working-directory: backend
+    strategy:
+      matrix:
+        node-version: [22]
+        environment: [MONGO_URI]
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Print Env Secret
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+        run: |
+          echo "Secret 1 is: $MONGO_URI"
+          echo "Secret 2 is: $JWT_SECRET"
+          echo "Secret 3 is: $PORT"
 
-      - name: Run Tests
+      - name: Stop Running Services
+        run: pm2 stop all || true
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: |
+          npm install --global yarn
+          yarn --version
+          yarn install
+
+      - name: Install Frontend Dependencies and Build
+        working-directory: ./frontend
+        run: |
+          df -h
+          sudo rm -rf ./build
+          yarn install
+          yarn run build
+
+      - name: Run Backend Tests
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+        working-directory: ./backend
         run: npm test
+
+      - name: Clean Install Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Create Production .env File
+        working-directory: ./backend
+        run: |
+          touch .env
+          echo "${{ secrets.PROD }}" > .env
+
+      - name: Start All Services
+        run: pm2 start all || pm2 resurrect
+
+      - name: Restart All Services
+        run: pm2 restart all
