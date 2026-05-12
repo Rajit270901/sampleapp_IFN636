@@ -1,43 +1,25 @@
-// services/NotificationFactory.js
-//
-// Factory Pattern: encapsulates creation logic for different notification types.
-// Demonstrates Inheritance, Polymorphism, and Abstraction.
-//
-//   BaseNotification (abstract-ish base)
-//        |
-//   ┌────┼────────────────────────────┐
-//   │    │              │             │
-//   BookedN   CancelledN  RescheduledN  StatusUpdateN
-//
-// Each subclass overrides getMessage() to format its own message text.
-// The Factory's create() method hides which subclass is instantiated:
-// callers say `NotificationFactory.create("Booked", data)` without
-// knowing or caring about the concrete class.
-//
-// This mirrors Tutorial 7's Factory example (VehicleFactory) and
-// Tutorial 6's OOP examples (Job parent + EmailJob/DataProcessingJob children).
+// factory pattern used here so notification objects are created in one place
+// https://www.w3schools.com/js/js_classes.asp
 
-const Notification = require("../models/Notification");
+const Notification = require("../models/Notification"); // importing notification model https://www.w3schools.com/nodejs/nodejs_modules.asp
 
-// ─── Base class ───────────────────────────────────────────────
-class BaseNotification {
-  constructor({ recipient, appointment, doctorName, slotInfo }) {
+// base class
+class BaseNotification { // parent class for all notification types https://www.w3schools.com/js/js_class_inheritance.asp
+  constructor({ recipient, appointment, doctorName, slotInfo }) { // constructor runs when object is created https://www.w3schools.com/js/js_class_intro.asp
     this.recipient = recipient;
     this.appointment = appointment;
     this.doctorName = doctorName;
     this.slotInfo = slotInfo;
-    this.type = "Base"; // overridden by subclasses
+    this.type = "Base"; // changed later by the child classes
   }
 
-  // Polymorphism: each subclass implements its own version.
-  // Base raises an error so subclasses are forced to override.
+  // child classes should write their own message
   getMessage() {
-    throw new Error("getMessage() must be implemented by subclass");
+    throw new Error("getMessage() must be implemented by subclass"); // error if subclass forgets this method https://www.w3schools.com/js/js_errors.asp
   }
 
-  // Persists the notification to MongoDB. Shared logic across all subclasses
-  // (encapsulation: callers don't need to know about the Notification model).
-  async save() {
+  // saves the notification in mongodb
+  async save() { // async is used because saving to db takes time https://www.w3schools.com/js/js_async.asp
     return await Notification.create({
       recipient: this.recipient,
       appointment: this.appointment,
@@ -47,14 +29,14 @@ class BaseNotification {
   }
 }
 
-// ─── Concrete subclasses ──────────────────────────────────────
-class BookedNotification extends BaseNotification {
+// concrete notification classes
+class BookedNotification extends BaseNotification { // extends means it inherits from BaseNotification https://www.w3schools.com/js/js_class_inheritance.asp
   constructor(data) {
-    super(data);
+    super(data); // calls the parent constructor first https://www.w3schools.com/js/js_class_inheritance.asp
     this.type = "Booked";
   }
   getMessage() {
-    return `Your appointment with ${this.doctorName} on ${this.slotInfo} has been booked successfully.`;
+    return `Your appointment with ${this.doctorName} on ${this.slotInfo} has been booked successfully.`; // template string used to insert values https://www.w3schools.com/js/js_string_templates.asp
   }
 }
 
@@ -82,19 +64,18 @@ class StatusUpdateNotification extends BaseNotification {
   constructor(data) {
     super(data);
     this.type = "StatusUpdate";
-    this.newStatus = data.newStatus; // e.g. "Completed"
+    this.newStatus = data.newStatus; // stores the updated appointment status
   }
   getMessage() {
     return `Your appointment with ${this.doctorName} on ${this.slotInfo} is now marked as "${this.newStatus}".`;
   }
 }
 
-// ─── The Factory ─────────────────────────────────────────────
+// factory class
 class NotificationFactory {
-  // Static factory method — the canonical Factory pattern API.
-  // Encapsulates which concrete subclass to return based on input.
-  static create(type, data) {
-    switch (type) {
+  // static method so it can be called without making a factory object
+  static create(type, data) { // static method https://www.w3schools.com/js/js_class_static.asp
+    switch (type) { // switch is cleaner here because there are multiple notification types https://www.w3schools.com/js/js_switch.asp
       case "Booked":
         return new BookedNotification(data);
       case "Cancelled":
@@ -109,7 +90,7 @@ class NotificationFactory {
   }
 }
 
-module.exports = {
+module.exports = { // exporting all classes so other files and tests can use them https://www.w3schools.com/nodejs/nodejs_modules.asp
   NotificationFactory,
   BaseNotification,
   BookedNotification,

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../axiosConfig';
+import { useEffect, useState } from 'react'; // hooks for state and loading data https://www.w3schools.com/react/react_hooks.asp
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
 const initialForm = {
   name: '',
@@ -9,48 +9,48 @@ const initialForm = {
   isAvailable: true,
 };
 
-function ManageDoctors() {
-  const [doctors, setDoctors] = useState([]);
-  const [formData, setFormData] = useState(initialForm);
-  const [editingDoctorId, setEditingDoctorId] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+function ManageDoctors() { // admin page for doctor crud https://www.w3schools.com/react/react_components.asp
+  const [doctors, setDoctors] = useState([]); // stores doctor list https://www.w3schools.com/react/react_usestate.asp
+  const [formData, setFormData] = useState(initialForm); // stores add edit form values
+  const [editingDoctorId, setEditingDoctorId] = useState(''); // stores doctor id when editing
+  const [loading, setLoading] = useState(true); // loading for doctor records
+  const [submitLoading, setSubmitLoading] = useState(false); // loading for add update button
+  const [actionLoading, setActionLoading] = useState(''); // stores doctor id while delete is running
+  const [error, setError] = useState(''); // stores error message
+  const [message, setMessage] = useState(''); // stores success message
 
-  const fetchDoctors = async () => {
-    try {
+  const fetchDoctors = async () => { // async because api request takes time https://www.w3schools.com/js/js_async.asp
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
       setLoading(true);
       const res = await axiosInstance.get('/api/doctors');
       setDoctors(res.data);
       setError('');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load doctors.');
+      setError(err?.response?.data?.message || 'Failed to load doctors.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // runs once when page loads https://www.w3schools.com/react/react_useeffect.asp
     fetchDoctors();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e) => { // runs when any form input changes https://www.w3schools.com/react/react_events.asp
+    const { name, value, type, checked } = e.target; // gets input details from event https://www.w3schools.com/js/js_destructuring.asp
     setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      ...prev, // keeps previous form values https://www.w3schools.com/react/react_es6_spread.asp
+      [name]: type === 'checkbox' ? checked : value, // checkbox uses checked but text inputs use value
     }));
   };
 
   const resetForm = () => {
-    setFormData(initialForm);
-    setEditingDoctorId('');
+    setFormData(initialForm); // clears form back to default values
+    setEditingDoctorId(''); // exits edit mode
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // stops form refresh https://www.w3schools.com/jsref/event_preventdefault.asp
     setError('');
     setMessage('');
 
@@ -58,15 +58,15 @@ function ManageDoctors() {
       setSubmitLoading(true);
 
       if (editingDoctorId) {
-        await axiosInstance.put(`/api/doctors/${editingDoctorId}`, formData);
+        await axiosInstance.put(`/api/doctors/${editingDoctorId}`, formData); // updates existing doctor using id https://www.w3schools.com/js/js_string_templates.asp
         setMessage('Doctor updated successfully.');
       } else {
-        await axiosInstance.post('/api/doctors', formData);
+        await axiosInstance.post('/api/doctors', formData); // creates new doctor
         setMessage('Doctor created successfully.');
       }
 
       resetForm();
-      await fetchDoctors();
+      await fetchDoctors(); // reloads doctor list after save
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to save doctor.');
     } finally {
@@ -75,13 +75,13 @@ function ManageDoctors() {
   };
 
   const handleEdit = (doctor) => {
-    setEditingDoctorId(doctor._id);
+    setEditingDoctorId(doctor._id); // puts form into edit mode
     setFormData({
       name: doctor.name || '',
       specialization: doctor.specialization || '',
       email: doctor.email || '',
       phone: doctor.phone || '',
-      isAvailable: !!doctor.isAvailable,
+      isAvailable: !!doctor.isAvailable, // converts value into true or false
     });
     setMessage('');
     setError('');
@@ -93,12 +93,12 @@ function ManageDoctors() {
       setError('');
       setMessage('');
 
-      await axiosInstance.delete(`/api/doctors/${doctorId}`);
+      await axiosInstance.delete(`/api/doctors/${doctorId}`); // deletes selected doctor
       setMessage('Doctor deleted successfully.');
       await fetchDoctors();
 
       if (editingDoctorId === doctorId) {
-        resetForm();
+        resetForm(); // clears form if deleted doctor was being edited
       }
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to delete doctor.');
@@ -234,7 +234,7 @@ function ManageDoctors() {
             <p className="text-gray-600">No doctors found.</p>
           ) : (
             <div className="space-y-4">
-              {doctors.map((doctor) => (
+              {doctors.map((doctor) => ( // shows each doctor as one record card https://www.w3schools.com/react/react_lists.asp
                 <div
                   key={doctor._id}
                   className="border border-gray-200 rounded-2xl p-5 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4"
@@ -280,4 +280,4 @@ function ManageDoctors() {
   );
 }
 
-export default ManageDoctors;
+export default ManageDoctors; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

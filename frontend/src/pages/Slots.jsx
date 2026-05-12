@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import axiosInstance from '../axiosConfig';
-import Avatar from '../components/Avatar';
+import { useEffect, useState, useCallback } from 'react'; // hooks for state loading and memoised fetch function https://www.w3schools.com/react/react_hooks.asp
+import { useSearchParams } from 'react-router-dom'; // reads query params from url
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
+import Avatar from '../components/Avatar'; // avatar component for doctor initials
 
-// ─── SVG icons ─────────────────────────────────────────────
-const SearchIcon = ({ className }) => (
+// search icon used in filter button
+const SearchIcon = ({ className }) => ( // receives className as prop https://www.w3schools.com/react/react_props.asp
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -17,6 +17,7 @@ const SearchIcon = ({ className }) => (
   </svg>
 );
 
+// calendar icon used beside date inputs
 const CalendarIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -30,30 +31,29 @@ const CalendarIcon = ({ className }) => (
   </svg>
 );
 
-function Slots() {
+function Slots() { // slots page component https://www.w3schools.com/react/react_components.asp
   const [searchParams] = useSearchParams();
-  const doctorIdFromUrl = searchParams.get('doctor');
+  const doctorIdFromUrl = searchParams.get('doctor'); // gets doctor id from url query param
 
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [bookingMessage, setBookingMessage] = useState('');
-  const [bookingError, setBookingError] = useState('');
-  const [bookingSlotId, setBookingSlotId] = useState('');
+  const [slots, setSlots] = useState([]); // stores slot list https://www.w3schools.com/react/react_usestate.asp
+  const [loading, setLoading] = useState(true); // controls loading text
+  const [error, setError] = useState(''); // stores slot loading error
+  const [bookingMessage, setBookingMessage] = useState(''); // stores booking success message
+  const [bookingError, setBookingError] = useState(''); // stores booking error message
+  const [bookingSlotId, setBookingSlotId] = useState(''); // stores slot id while booking is running
 
-  // Search filters
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [availableOnly, setAvailableOnly] = useState(true); // default true — most users want bookable slots
+  // search filter values
+  const [fromDate, setFromDate] = useState(''); // stores from date filter
+  const [toDate, setToDate] = useState(''); // stores to date filter
+  const [availableOnly, setAvailableOnly] = useState(true); // default true because users normally want free slots
 
-  const fetchSlots = useCallback(async () => {
+  const fetchSlots = useCallback(async () => { // keeps function stable for useEffect dependencies https://www.w3schools.com/react/react_usecallback.asp
     setLoading(true);
     setError('');
-    try {
+    try { // catches api errors https://www.w3schools.com/js/js_errors.asp
       const hasDateFilter = fromDate || toDate;
-      // Use the search endpoint when any filter is active OR there's a doctor URL param,
-      // because /api/slots/search supports all combinations.
-      // Otherwise use the basic /available endpoint for the default unfiltered view.
+      // search endpoint is used when doctor or date filters are active
+      // otherwise normal slots endpoint is enough
       const useSearch = hasDateFilter || doctorIdFromUrl;
       let res;
 
@@ -74,18 +74,18 @@ function Slots() {
 
       setSlots(res.data);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load available slots.');
+      setError(err?.response?.data?.message || 'Failed to load available slots.'); // optional chaining avoids crash if response is missing https://www.w3schools.com/js/js_2020.asp
     } finally {
-      setLoading(false);
+      setLoading(false); // stops loading whether request works or fails https://www.w3schools.com/js/js_errors.asp
     }
   }, [doctorIdFromUrl, fromDate, toDate, availableOnly]);
 
-  useEffect(() => {
+  useEffect(() => { // runs when fetchSlots changes https://www.w3schools.com/react/react_useeffect.asp
     fetchSlots();
   }, [fetchSlots]);
 
   const handleSearch = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // stops form refresh https://www.w3schools.com/jsref/event_preventdefault.asp
     fetchSlots();
   };
 
@@ -93,11 +93,11 @@ function Slots() {
     setFromDate('');
     setToDate('');
     setAvailableOnly(true);
-    // fetchSlots will re-run via useEffect dependency change
+    // useEffect runs again after these filter values change
   };
 
-  const handleBook = async (slot) => {
-    try {
+  const handleBook = async (slot) => { // books selected slot
+    try { // catches booking errors
       setBookingError('');
       setBookingMessage('');
       setBookingSlotId(slot._id);
@@ -108,7 +108,7 @@ function Slots() {
       });
 
       setBookingMessage('Appointment booked successfully.');
-      await fetchSlots();
+      await fetchSlots(); // reloads slots so booked slot updates
     } catch (err) {
       setBookingError(err?.response?.data?.message || 'Failed to book appointment.');
     } finally {
@@ -130,7 +130,7 @@ function Slots() {
         </p>
       </div>
 
-      {/* ─── Search/filter bar (uses /api/slots/search → SlotDateAdapter) ── */}
+      {/* filter bar for date and availability */}
       <form
         onSubmit={handleSearch}
         className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4"
@@ -143,7 +143,7 @@ function Slots() {
             <input
               type="date"
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              onChange={(e) => setFromDate(e.target.value)} // updates from date when user selects date https://www.w3schools.com/react/react_events.asp
               className="w-full rounded-xl border border-gray-300 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
             />
             <CalendarIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -158,7 +158,7 @@ function Slots() {
             <input
               type="date"
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              onChange={(e) => setToDate(e.target.value)} // updates to date when user selects date
               className="w-full rounded-xl border border-gray-300 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
             />
             <CalendarIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -170,7 +170,7 @@ function Slots() {
             type="checkbox"
             id="availableSlotsOnly"
             checked={availableOnly}
-            onChange={(e) => setAvailableOnly(e.target.checked)}
+            onChange={(e) => setAvailableOnly(e.target.checked)} // stores checkbox true or false
             className="w-4 h-4 rounded border-gray-300 text-[#166cb7] focus:ring-[#166cb7]"
           />
           <label htmlFor="availableSlotsOnly" className="text-sm text-gray-700 whitespace-nowrap">
@@ -196,7 +196,7 @@ function Slots() {
         </div>
       </form>
 
-      {/* ─── Status banners ──────────────────────────────────────── */}
+      {/* messages shown after booking or loading error */}
       {bookingMessage && (
         <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
           {bookingMessage}
@@ -213,7 +213,7 @@ function Slots() {
         </div>
       )}
 
-      {/* ─── Results ─────────────────────────────────────────────── */}
+      {/* results section */}
       {loading && <div className="text-gray-600">Loading slots...</div>}
 
       {!loading && slots.length === 0 && !error && (
@@ -224,7 +224,7 @@ function Slots() {
 
       {!loading && slots.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {slots.map((slot) => (
+          {slots.map((slot) => ( // creates one slot card for each slot https://www.w3schools.com/react/react_lists.asp
             <div
               key={slot._id}
               className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition"
@@ -244,7 +244,7 @@ function Slots() {
                     <span
                       className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
                         slot.isBooked ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
-                      }`}
+                      }`} // badge colour changes based on booking status
                     >
                       {slot.isBooked ? 'Booked' : 'Available'}
                     </span>
@@ -272,7 +272,7 @@ function Slots() {
               </div>
 
               <button
-                onClick={() => handleBook(slot)}
+                onClick={() => handleBook(slot)} // books this slot https://www.w3schools.com/react/react_events.asp
                 disabled={bookingSlotId === slot._id || slot.isBooked}
                 className="mt-5 w-full rounded-xl bg-[#609139] text-white py-3 font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -290,4 +290,4 @@ function Slots() {
   );
 }
 
-export default Slots;
+export default Slots; // exporting page so router can use it https://www.w3schools.com/react/react_es6_modules.asp

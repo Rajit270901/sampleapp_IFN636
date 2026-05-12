@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from 'react'; // useState stores whether password is visible or hidden https://www.w3schools.com/react/react_usestate.asp
 
-// ─── Inline SVG eye icons ───────────────────────────────
-const EyeIcon = ({ className }) => (
+// eye icon shown when password is hidden
+const EyeIcon = ({ className }) => ( // receives className as prop https://www.w3schools.com/react/react_props.asp
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -23,6 +23,7 @@ const EyeIcon = ({ className }) => (
   </svg>
 );
 
+// eye slash icon shown when password is visible
 const EyeSlashIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -40,13 +41,13 @@ const EyeSlashIcon = ({ className }) => (
   </svg>
 );
 
-const PasswordInput = ({ name, value, onChange, placeholder = 'Enter your password' }) => {
-  const [show, setShow] = useState(false);
+const PasswordInput = ({ name, value, onChange, placeholder = 'Enter your password' }) => { // reusable password input component with default placeholder https://www.w3schools.com/react/react_props.asp
+  const [show, setShow] = useState(false); // false means password is hidden at first
 
   return (
     <div className="relative">
       <input
-        type={show ? 'text' : 'password'}
+        type={show ? 'text' : 'password'} // changes input type based on show value
         name={name}
         placeholder={placeholder}
         value={value}
@@ -55,9 +56,9 @@ const PasswordInput = ({ name, value, onChange, placeholder = 'Enter your passwo
       />
       <button
         type="button"
-        onClick={() => setShow((prev) => !prev)}
+        onClick={() => setShow((prev) => !prev)} // toggles password visibility https://www.w3schools.com/react/react_events.asp
         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#166cb7] transition p-1"
-        aria-label={show ? 'Hide password' : 'Show password'}
+        aria-label={show ? 'Hide password' : 'Show password'} // label changes for accessibility
         tabIndex={-1}
       >
         {show ? (
@@ -70,4 +71,4 @@ const PasswordInput = ({ name, value, onChange, placeholder = 'Enter your passwo
   );
 };
 
-export default PasswordInput;
+export default PasswordInput; // exporting component so other pages can use it https://www.w3schools.com/react/react_es6_modules.asp

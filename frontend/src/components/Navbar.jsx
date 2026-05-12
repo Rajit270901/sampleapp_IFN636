@@ -1,10 +1,10 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axiosInstance from '../axiosConfig';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // router tools for links navigation and current page
+import { useEffect, useState } from 'react'; // react hooks for state and side effects https://www.w3schools.com/react/react_hooks.asp
+import { useAuth } from '../context/AuthContext'; // gets current logged in user from auth context
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
-// ─── Inline SVG icons (cleaner than emojis, scale crisply) ──────
-const BellIcon = ({ className }) => (
+// small svg bell icon used for notifications
+const BellIcon = ({ className }) => ( // component receives className as prop https://www.w3schools.com/react/react_props.asp
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -21,42 +21,42 @@ const BellIcon = ({ className }) => (
   </svg>
 );
 
-function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0);
+function Navbar() { // navbar component https://www.w3schools.com/react/react_components.asp
+  const { user, logout, isAuthenticated } = useAuth(); // taking auth values from context
+  const navigate = useNavigate(); // used to redirect user after logout
+  const location = useLocation(); // used to check current page
+  const [unreadCount, setUnreadCount] = useState(0); // stores unread notification count https://www.w3schools.com/react/react_usestate.asp
 
-  // Active link highlighting
+  // checks if the nav link matches current page
   const isActive = (path) => location.pathname === path;
   const linkClass = (path) =>
     `transition ${
       isActive(path)
         ? 'text-[#166cb7] font-semibold'
         : 'text-gray-600 hover:text-[#166cb7]'
-    }`;
+    }`; // template string changes class based on active page https://www.w3schools.com/js/js_string_templates.asp
 
-  // Poll for unread notifications every 30 seconds when logged in as patient
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'patient') return;
+  // checks unread notifications every 30 seconds for patient users
+  useEffect(() => { // runs after render and when auth/user changes https://www.w3schools.com/react/react_useeffect.asp
+    if (!isAuthenticated || user?.role !== 'patient') return; // optional chaining avoids error if user is missing https://www.w3schools.com/js/js_2020.asp
 
-    const fetchUnread = async () => {
-      try {
+    const fetchUnread = async () => { // async because api call takes time https://www.w3schools.com/js/js_async.asp
+      try { // catches api errors so navbar does not crash https://www.w3schools.com/js/js_errors.asp
         const res = await axiosInstance.get('/api/notifications/unread-count');
         setUnreadCount(res.data.count || 0);
       } catch (err) {
-        // silent fail — don't break the navbar
+        // ignore this because notification count is not critical
       }
     };
 
     fetchUnread();
-    const interval = setInterval(fetchUnread, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchUnread, 30000); // runs fetchUnread every 30 seconds https://www.w3schools.com/jsref/met_win_setinterval.asp
+    return () => clearInterval(interval); // cleans interval when component updates/unmounts https://www.w3schools.com/jsref/met_win_clearinterval.asp
   }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/login'); // sends user back to login page
   };
 
   return (
@@ -64,7 +64,7 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link
-            to={user?.role === 'admin' ? '/admin' : '/dashboard'}
+            to={user?.role === 'admin' ? '/admin' : '/dashboard'} // sends admin and patient to different home pages
             className="text-2xl font-bold tracking-tight"
           >
             <span className="text-[#166cb7]">MED</span>
@@ -89,7 +89,7 @@ function Navbar() {
               <Link to="/appointments" className={linkClass('/appointments')}>My Appointments</Link>
               <Link to="/profile" className={linkClass('/profile')}>Profile</Link>
 
-              {/* Notifications link with unread badge */}
+              {/* notification link shows badge only when unread count is more than 0 */}
               <Link
                 to="/notifications"
                 className={`relative flex items-center gap-1.5 ${linkClass('/notifications')}`}
@@ -128,4 +128,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Navbar; // exporting navbar so it can be used in app https://www.w3schools.com/react/react_es6_modules.asp

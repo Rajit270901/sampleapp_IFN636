@@ -1,52 +1,60 @@
-import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axiosInstance from '../axiosConfig';
+import { Link } from 'react-router-dom'; // link is used to move between pages without refresh
+import { useEffect, useState } from 'react'; // hooks for state and loading dashboard data https://www.w3schools.com/react/react_hooks.asp
+import { useAuth } from '../context/AuthContext'; // gets logged in user from auth context
+import axiosInstance from '../axiosConfig'; // custom axios setup for api calls
 
-// ─── Inline SVG icons for action cards ─────────────────────
-const DoctorIcon = ({ className }) => (
+// doctor icon used in action card
+const DoctorIcon = ({ className }) => ( // receives className as prop https://www.w3schools.com/react/react_props.asp
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
   </svg>
 );
+
+// calendar icon used for slots card
 const CalendarIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
   </svg>
 );
+
+// clipboard icon used for appointments card
 const ClipboardIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/>
   </svg>
 );
+
+// bell icon used for notifications card
 const BellIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
   </svg>
 );
+
+// user icon used for profile card
 const UserIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
   </svg>
 );
 
-const PatientDashboard = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState({ appointments: 0, unread: 0 });
+const PatientDashboard = () => { // patient dashboard page component https://www.w3schools.com/react/react_components.asp
+  const { user } = useAuth(); // gets current user details
+  const [stats, setStats] = useState({ appointments: 0, unread: 0 }); // stores appointment and unread notification numbers https://www.w3schools.com/react/react_usestate.asp
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
+  useEffect(() => { // runs once when dashboard opens https://www.w3schools.com/react/react_useeffect.asp
+    const fetchStats = async () => { // async because api calls take time https://www.w3schools.com/js/js_async.asp
+      try { // catches api errors https://www.w3schools.com/js/js_errors.asp
         const [apps, unread] = await Promise.all([
           axiosInstance.get('/api/appointments/my'),
           axiosInstance.get('/api/notifications/unread-count'),
-        ]);
+        ]); // loads both stats together https://www.w3schools.com/js/js_promise.asp
         setStats({
-          appointments: Array.isArray(apps.data) ? apps.data.length : 0,
-          unread: unread.data?.count || 0,
+          appointments: Array.isArray(apps.data) ? apps.data.length : 0, // checks data is array before counting https://www.w3schools.com/jsref/jsref_isarray.asp
+          unread: unread.data?.count || 0, // optional chaining avoids error if count is missing https://www.w3schools.com/js/js_2020.asp
         });
       } catch (err) {
-        // silent fail — stats are nice-to-have
+        // stats are just extra info so no need to block dashboard
       }
     };
     fetchStats();
@@ -97,17 +105,17 @@ const PatientDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* ─── Hero with image background ──────────────────── */}
+      {/* hero section with background image */}
       <div className="relative rounded-3xl overflow-hidden shadow-lg">
-        {/* Background image */}
+        {/* background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('/images/patient-hero.jpg')" }}
         />
-        {/* Gradient overlay for text legibility */}
+        {/* overlay makes text easier to read */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#166cb7]/95 via-[#166cb7]/80 to-[#166cb7]/40" />
 
-        {/* Content */}
+        {/* main dashboard welcome content */}
         <div className="relative px-8 py-12 text-white">
           <p className="text-sm uppercase tracking-wider opacity-90 font-medium">Patient Dashboard</p>
           <h1 className="text-3xl md:text-4xl font-bold mt-2">
@@ -117,7 +125,7 @@ const PatientDashboard = () => {
             Manage your appointments, explore available doctors and keep your profile up to date — all in one platform.
           </p>
 
-          {/* Stats strip */}
+          {/* small stats section */}
           <div className="mt-8 flex flex-wrap gap-6">
             <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
               <p className="text-xs uppercase tracking-wide opacity-80">Appointments</p>
@@ -131,10 +139,10 @@ const PatientDashboard = () => {
         </div>
       </div>
 
-      {/* ─── Action cards ─────────────────────────────────── */}
+      {/* main action cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mt-8">
-        {actions.map((action) => {
-          const { Icon } = action;
+        {actions.map((action) => { // creates one card for each dashboard action https://www.w3schools.com/react/react_lists.asp
+          const { Icon } = action; // gets icon component from action object https://www.w3schools.com/js/js_destructuring.asp
           return (
             <Link
               key={action.title}
@@ -154,7 +162,7 @@ const PatientDashboard = () => {
         })}
       </div>
 
-      {/* ─── Bottom info section ──────────────────────────── */}
+      {/* help and account summary section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-xl font-bold text-[#166cb7] mb-5">How to use MediTrack</h3>
@@ -209,4 +217,4 @@ const PatientDashboard = () => {
   );
 };
 
-export default PatientDashboard;
+export default PatientDashboard; // exporting dashboard so router can use it https://www.w3schools.com/react/react_es6_modules.asp

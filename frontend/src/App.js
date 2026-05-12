@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // router tools for page navigation https://www.w3schools.com/react/react_router.asp
+import { useAuth } from './context/AuthContext'; // gets login state and user role from auth context
+import Navbar from './components/Navbar'; // navbar shown on all pages
 
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -15,21 +15,21 @@ import ManageSlots from './pages/ManageSlots';
 import AdminAppointments from './pages/AdminAppointments';
 import Notifications from './pages/Notifications';
 
-function ProtectedRoute({ children, allowedRoles }) {
+function ProtectedRoute({ children, allowedRoles }) { // wrapper used to protect private pages https://www.w3schools.com/react/react_props.asp
   const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />; // sends logged out users to login
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role)) { // checks if user role is allowed for this page https://www.w3schools.com/jsref/jsref_includes_array.asp
     return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
   }
 
   return children;
 }
 
-function HomeRedirect() {
+function HomeRedirect() { // sends user to the correct starting page
   const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
@@ -39,12 +39,12 @@ function HomeRedirect() {
   return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
 }
 
-function App() {
+function App() { // main app component https://www.w3schools.com/react/react_components.asp
   return (
     <Router>
       <div className="min-h-screen bg-sky-50">
         <Navbar />
-        <Routes>
+        <Routes> {/* contains all route definitions */}
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -137,4 +137,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; // exports app so react can render it https://www.w3schools.com/react/react_es6_modules.asp
