@@ -140,6 +140,63 @@ The frontend should open in the browser at:
 
 http://localhost:3000
 
+### Setup Instructions for Windows
+
+*Prerequisites:*
+- Node.js v22 LTS (https://nodejs.org/en/download/)
+- Git for Windows (https://git-scm.com/download/win)
+- Visual Studio Code (https://code.visualstudio.com/)
+
+*Clone the Repository:*
+
+Open Command Prompt or PowerShell:
+
+    git clone https://github.com/Rajit270901/sampleapp_IFN636.git
+    cd sampleapp_IFN636
+
+*Backend Setup (Windows):*
+
+    cd backend
+    npm install
+
+Create a file named .env in the backend folder. In File Explorer, 
+right-click → New → Text Document → rename to .env (remove the 
+.txt extension; click Yes if Windows warns).
+
+Open .env in Notepad and paste (ask team for actual values):
+
+    MONGO_URI=your_mongodb_connection_string_here
+    JWT_SECRET=your_jwt_secret_here
+    PORT=5001
+
+Start the backend:
+
+    node server.js
+
+You should see "Server running on port 5001" + "MongoDB connected 
+successfully". Leave the window open.
+
+*Frontend Setup (Windows):*
+
+Open a SECOND Command Prompt or PowerShell:
+
+    cd sampleapp_IFN636\frontend
+    npm install
+    npm start
+
+Browser opens at http://localhost:3000.
+
+*Common Windows Issues:*
+
+| Issue | Resolution |
+|-------|-----------|
+| "node is not recognized" | Restart terminal after Node.js install |
+| Port 5001 in use | Task Manager → end node.exe processes |
+| Permission errors | Run terminal as Administrator |
+| Frontend doesn't auto-open | Go to http://localhost:3000 manually |
+| .env file shows as test.txt | View → File name extensions in Explorer |
+
+
 ## Test Credentials
 
 Patient Access
