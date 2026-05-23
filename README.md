@@ -18,6 +18,45 @@ Assessment 2.1 by the following team members:
 
 GitHub: https://github.com/Rajit270901/sampleapp_IFN636
 
+## Technology Stack
+
+The MediTrack application is built on the following technology stack:
+
+### Backend
+- *Node.js v22 LTS* — JavaScript runtime
+- *Express.js v4* — Web application framework
+- *MongoDB Atlas* — Cloud-hosted NoSQL database
+- *Mongoose v6* — MongoDB object modelling
+- *JSON Web Tokens (JWT)* — Authentication
+- *bcrypt* — Password hashing
+- *mocha + chai + sinon* — Testing framework
+
+### Frontend
+- *React.js v18* — UI library
+- *Tailwind CSS* — Utility-first CSS framework
+- *axios* — HTTP client
+- *React Router* — Client-side routing
+
+### DevOps and Infrastructure
+- *GitHub Actions* — CI/CD pipeline
+- *AWS EC2* — Application hosting (Ubuntu 24.04)
+- *AWS Application Load Balancer* — Traffic distribution
+- *AWS CloudWatch* — Monitoring and alarms
+- *PM2* — Node.js process management
+- *Nginx* — Reverse proxy
+
+### Testing & Quality
+- *Postman* — API testing (75+ assertions across 30 endpoints)
+- *GitHub Actions CI* — Automated testing on every PR
+- *Apache Bench (ab)* — Load testing
+
+### Design Patterns Implemented
+- Singleton (Database connection management)
+- Factory (Notification creation)
+- Facade (Appointment booking workflow)
+- Middleware (Request logging, validation, auth chain)
+- Adapter (Date format bridging for slot search)
+
 ## Project Overview
 
 The purpose of MediTrack is to provide a medical appointment booking platform with separate workflows for patients and administrators.
