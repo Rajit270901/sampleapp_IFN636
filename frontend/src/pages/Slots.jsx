@@ -34,6 +34,7 @@ const CalendarIcon = ({ className }) => (
 function Slots() { // slots page component https://www.w3schools.com/react/react_components.asp
   const [searchParams] = useSearchParams();
   const doctorIdFromUrl = searchParams.get('doctor'); // gets doctor id from url query param
+  const today = new Date().toISOString().split('T')[0]; // today as YYYY-MM-DD format, used as minimum for date inputs
 
   const [slots, setSlots] = useState([]); // stores slot list https://www.w3schools.com/react/react_usestate.asp
   const [loading, setLoading] = useState(true); // controls loading text
@@ -143,6 +144,7 @@ function Slots() { // slots page component https://www.w3schools.com/react/react
             <input
               type="date"
               value={fromDate}
+              min={today}
               onChange={(e) => setFromDate(e.target.value)} // updates from date when user selects date https://www.w3schools.com/react/react_events.asp
               className="w-full rounded-xl border border-gray-300 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
             />
@@ -158,6 +160,7 @@ function Slots() { // slots page component https://www.w3schools.com/react/react
             <input
               type="date"
               value={toDate}
+              min={fromDate || today}
               onChange={(e) => setToDate(e.target.value)} // updates to date when user selects date
               className="w-full rounded-xl border border-gray-300 pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#166cb7]"
             />
