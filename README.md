@@ -1,300 +1,366 @@
 # MediTrack - Medical Appointment Scheduler
-# Rajit Bhargava
-# IFN636 – Software Life Cycle Management
 
-MediTrack is a medical appointment scheduling system developed for Assessment 1.2. The application is a real world CRUD system for managing doctors, appointment slots, patient bookings and administrative scheduling tasks.
+**IFN636 - Software Lifecycle Management - Assessment 2.1**  
+Developed by Rajit Ravindra Bhargava, Hayden Koomans, Pratham Hariani and Takshak Rajvanshi
+
+MediTrack is a medical appointment scheduling system extending the team's earlier Assessment 1.2 deliverables. The application implements design patterns, OOP principles, automated testing, CI/CD pipelines, AWS load balancing and CloudWatch monitoring. 
+
+**Live Application URL:**  
+http://MediTrack-ALB-291180955.ap-southeast-2.elb.amazonaws.com
+
+---
 
 ## Team
 
-This project was developed for IFN636 Software Lifecycle Management 
-Assessment 2.1 by the following team members:
+This project was developed for IFN636 Software Lifecycle Management Assessment 2.1 by the following team members:
 
 | Name | Student ID | Primary Contribution |
 |------|-----------|---------------------|
-| Rajit Bhargava | n12483371 | Backend architecture, AWS deployment, design patterns, testing |
-| Hayden Koomans | n11435895 | README documentation, Windows setup, tech stack docs, design patterns, testing |
-| Pratham Hariani | n12262757 | QA testing, UI improvements, application screenshots, design patterns, testing |
-| Takshak Rajvanshi | n12131326 | CONTRIBUTORS.md, architecture overview, merge conflict resolution, design patterns, testing |
+| Rajit Ravindra Bhargava | n12483371 | Backend architecture, AWS EC2 Deployment & Load Balancing, README, design patterns, testing, report|
+| Hayden Koomans | n11435895 | README documentation, Windows setup, technology stack docs, design patterns, testing, report|
+| Pratham Hariani | n12262757 | QA testing, UI improvements, application screenshots, design patterns, testing, report|
+| Takshak Rajvanshi | n12131326 | CONTRIBUTORS.md, architecture overview, design patterns, testing, report|
 
-GitHub: https://github.com/Rajit270901/sampleapp_IFN636
+**GitHub Repository:** https://github.com/Rajit270901/sampleapp_IFN636
+
+---
 
 ## Technology Stack
 
-The MediTrack application is built on the following technology stack:
-
 ### Backend
-- *Node.js v22 LTS* — JavaScript runtime
-- *Express.js v4* — Web application framework
-- *MongoDB Atlas* — Cloud-hosted NoSQL database
-- *Mongoose v6* — MongoDB object modelling
-- *JSON Web Tokens (JWT)* — Authentication
-- *bcrypt* — Password hashing
-- *mocha + chai + sinon* — Testing framework
+- **Node.js v22 LTS** 
+- **Express.js v4** 
+- **MongoDB Atlas** 
+- **Mongoose v6** 
+- **JSON Web Tokens (JWT)** 
+- **bcrypt** 
+- **mocha + chai + sinon** 
 
 ### Frontend
-- *React.js v18* — UI library
-- *Tailwind CSS* — Utility-first CSS framework
-- *axios* — HTTP client
-- *React Router* — Client-side routing
+- **React.js v18** 
+- **Tailwind CSS** 
+- **axios** 
+- **React Router** 
 
-### DevOps and Infrastructure
-- *GitHub Actions* — CI/CD pipeline
-- *AWS EC2* — Application hosting (Ubuntu 24.04)
-- *AWS Application Load Balancer* — Traffic distribution
-- *AWS CloudWatch* — Monitoring and alarms
-- *PM2* — Node.js process management
-- *Nginx* — Reverse proxy
+### System Deployment and Infrastructure
+- **GitHub Actions** 
+- **AWS EC2** 
+- **AWS Application Load Balancer** 
+- **AWS CloudWatch** 
+- **PM2** 
+- **Nginx** 
 
-### Testing & Quality
-- *Postman* — API testing (75+ assertions across 30 endpoints)
-- *GitHub Actions CI* — Automated testing on every PR
-- *Apache Bench (ab)* — Load testing
+### Testing & QA
+- **Postman** 
+- **GitHub Actions CI** 
+- **Apache Bench (ab)** 
+- **Application Test Cases** 
 
 ### Design Patterns Implemented
-- Singleton (Database connection management)
-- Factory (Notification creation)
-- Facade (Appointment booking workflow)
-- Middleware (Request logging, validation, auth chain)
-- Adapter (Date format bridging for slot search)
+- **Singleton** — Database connection management (`backend/config/db.js`)
+- **Factory** — Notification creation (`backend/services/NotificationFactory.js`)
+- **Facade** — Appointment booking workflow (`backend/services/AppointmentFacade.js`)
+- **Middleware** — Request logging, validation, authentication chain (`backend/middleware/`)
+- **Adapter** — Date format bridging for slot search (`backend/adapters/SlotDateAdapter.js`)
 
-## Project Overview
+---
 
-The purpose of MediTrack is to provide a medical appointment booking platform with separate workflows for patients and administrators.
+## Project Overview (Assessment 2.1)
 
-Patients can:
-- register and log in
-- browse doctors
-- view doctor specific available slots
-- book appointments
-- reschedule appointments
-- cancel appointments
-- update profile details
+MediTrack is a medical appointment scheduling platform with separate workflows for patients and admins.
 
-Administrators can:
-- log in
-- manage doctor records
-- manage appointment slots
-- view all appointments
-- update appointment status
+**Patients can:**
+- Register and log in
+- Browse doctors by specialisation
+- View doctor specific available slots filtered by date range
+- Book, reschedule and cancel appointments
+- View and manage notifications
+- Update profile details
 
-The project demonstrates CRUD development using Node.js, Express.js, MongoDB and React.js along with authentication, authorization, GitHub branching, and CI workflow setup.
+**Admins can:**
+- Log in to admin dashboard
+- Manage doctor records (add, edit, delete)
+- Manage appointment slots (add, edit, delete)
+- View all appointments across the system
+- Update appointment statuses (with patient notification)
 
-## Features
+---
 
-Patient Features
-- User registration
-- User login
-- View doctors
-- View available slots for a selected doctor
-- Book appointment
-- View personal appointments
-- Reschedule appointment
-- Cancel appointment
-- Update profile
+## Application Features
 
-Admin Features
-- Admin login
-- Add doctor
-- Edit doctor
-- Delete doctor
-- Add slot
-- Edit slot
-- Delete slot
-- View all appointments
-- Update appointment status
+### Patient Features
+- User registration and login (JWT-based)
+- Doctor browsing with search and filter
+- Slot viewing with date range filter
+- Appointment booking, rescheduling and cancellation
+- Real time notifications for appointment updates
+- Profile management
 
-Technical Features
-- JWT based authentication
-- Role based authorization for patient/admin access
-- Protected frontend routes
-- MongoDB data 
-- GitHub Actions backend CI workflow
-- PM2 deployment attempt on EC2
+### Admin Features
+- Admin authentication
+- CRUD operations for doctors and slots
+- All appointments view with status management
+- Notifications to patients on status changes
 
-## Tools used
+### Technical Features
+- JWT based authentication with role based authorization
+- Protected frontend routes by role (patient/admin)
+- Automated backend tests using mocha + chai + sinon
+- API assertions in a Postman collection
+- GitHub Actions CI workflow
+- Continuous Deployment to production EC2 instances on every merge to main
+- Load-balanced production deployment across two EC2 instances
+- CloudWatch monitoring with configured CPU alarm and SNS email notifications
 
-Frontend
-- React.js
-- Tailwind CSS
-
-Backend
-- Node.js
-- Express.js
-- MongoDB
-- JWT
-
-### Testing / CI
-- Mocha / Chai / Sinon
-- GitHub Actions
+---
 
 ## Project Structure
 
+```text
 sampleapp_IFN636/
 │
 ├── backend/
 │   ├── config/
+│   │   └── db.js (Singleton pattern)
 │   ├── controllers/
 │   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── requestLogger.js
+│   │   └── validateBody.js
 │   ├── models/
 │   ├── routes/
-│   ├── tests/
-│   ├── server.js
-│   └── .env
+│   ├── services/
+│   │   ├── AppointmentFacade.js (Facade pattern)
+│   │   └── NotificationFactory.js (Factory pattern)
+│   ├── adapters/
+│   │   └── SlotDateAdapter.js (Adapter pattern)
+│   ├── tests/ 
+│   └── server.js
 │
 ├── frontend/
 │   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── App.js
-│   │   ├── axiosConfig.js
-│   │   └── index.js
-│   └── .env
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── pages/
+│       ├── App.js
+│       ├── axiosConfig.jsx
+│       └── index.js
+│
+├── postman/
+│   └── MediTrack_API.postman_collection.json
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 │
 └── README.md
+```
+
+---
 
 ## Setup Instructions
 
-1. Clone the repository
+### Prerequisites
+
+- Node.js v22 LTS — https://nodejs.org/en/download/
+- Git — https://git-scm.com/
+- Visual Studio Code (recommended) — https://code.visualstudio.com/
+
+### Clone the Repository
+
+```bash
 git clone https://github.com/Rajit270901/sampleapp_IFN636.git
 cd sampleapp_IFN636
+```
 
-2. Backend setup
+### Backend Setup
+
+```bash
 cd backend
 npm install
+```
 
-Create a .env file inside the backend folder with:
+Create a `.env` file in the `backend/` folder with:
 
+```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 PORT=5001
+```
 
 Start the backend server:
 
+```bash
 npm run dev
+```
 
-3. Frontend setup
+You should see:
 
-Open another terminal:
+```bash
+Server running on port 5001
+MongoDB connected successfully
+```
 
+### Frontend Setup
+
+In a separate terminal:
+
+```bash
 cd frontend
 npm install
-
-Create a .env file inside the frontend folder with:
-
-REACT_APP_API_URL=http://localhost:5001
-
-Start the frontend:
-
 npm start
+```
 
-The frontend should open in the browser at:
+The application opens at http://localhost:3000
 
-http://localhost:3000
+---
 
 ### Setup Instructions for Windows
 
-*Prerequisites:*
+**Prerequisites:**
 - Node.js v22 LTS (https://nodejs.org/en/download/)
 - Git for Windows (https://git-scm.com/download/win)
 - Visual Studio Code (https://code.visualstudio.com/)
 
-*Clone the Repository:*
+**Clone the Repository:**
 
 Open Command Prompt or PowerShell:
 
-    git clone https://github.com/Rajit270901/sampleapp_IFN636.git
-    cd sampleapp_IFN636
+```cmd
+git clone https://github.com/Rajit270901/sampleapp_IFN636.git
+cd sampleapp_IFN636
+```
 
-*Backend Setup (Windows):*
+**Backend Setup (Windows):**
 
-    cd backend
-    npm install
+```cmd
+cd backend
+npm install
+```
 
-Create a file named .env in the backend folder. In File Explorer, 
-right-click → New → Text Document → rename to .env (remove the 
-.txt extension; click Yes if Windows warns).
+Create a file named `.env` in the backend folder. In File Explorer, right-click → New → Text Document → rename to `.env` (remove the .txt extension; click Yes if Windows warns).
 
-Open .env in Notepad and paste (ask team for actual values):
+Open `.env` in Notepad and paste:
 
-    MONGO_URI=your_mongodb_connection_string_here
-    JWT_SECRET=your_jwt_secret_here
-    PORT=5001
+```env
+MONGO_URI=your_mongodb_connection_string_here
+JWT_SECRET=your_jwt_secret_here
+PORT=5001
+```
 
 Start the backend:
 
-    node server.js
+```cmd
+node server.js
+```
 
-You should see "Server running on port 5001" + "MongoDB connected 
-successfully". Leave the window open.
+You should see "Server running on port 5001" and "MongoDB connected successfully". Leave the window open.
 
-*Frontend Setup (Windows):*
+**Frontend Setup (Windows):**
 
-Open a SECOND Command Prompt or PowerShell:
+Open a SECOND Command Prompt or PowerShell window:
 
-    cd sampleapp_IFN636\frontend
-    npm install
-    npm start
+```cmd
+cd sampleapp_IFN636\frontend
+npm install
+npm start
+```
 
-Browser opens at http://localhost:3000.
+The application opens at http://localhost:3000
 
-*Common Windows Issues:*
+**Common Windows Issues:**
 
 | Issue | Resolution |
 |-------|-----------|
 | "node is not recognized" | Restart terminal after Node.js install |
-| Port 5001 in use | Task Manager → end node.exe processes |
+| Port 5001 already in use | Task Manager → end node.exe processes |
 | Permission errors | Run terminal as Administrator |
-| Frontend doesn't auto-open | Go to http://localhost:3000 manually |
+| Frontend doesn't auto-open | Manually navigate to http://localhost:3000 |
 | .env file shows as test.txt | View → File name extensions in Explorer |
 
+---
 
 ## Test Credentials
 
-Patient Access
-Email: patient@email.com
-Password: patient123
+The following test accounts are available at the live application URL:
 
-Admin Access
-Email: admin@example.com
-Password: admin123
+**Patient Account:**
+- Email: `patient@meditrack.com`
+- Password: `patient1234`
+
+**Admin Account:**
+- Email: `admin@meditrack.com`
+- Password: `admin1234`
+
+Patients can browse doctors, view slots, book/manage appointments and access notifications. Admins can manage doctors, slots and appointments.
+
+---
 
 ## Authentication and Authorization
 
-MediTrack uses JWT based authentication. After successful login, the user token is stored and used for protected API requests. The system supports two roles:
+MediTrack uses JWT based authentication.
 
-1. patient
-2. admin
+**Roles:**
+- `patient` — access to patient dashboard, doctor browsing and booking functions
+- `admin` — access to admin dashboard, doctor/slot management and all appointments view
 
-Access to routes and pages is restricted based on role:
+Route protection is enforced both on the backend (middleware) and the frontend (route guards in `App.js`).
 
-patients can access patient dashboard and booking functions
-admins can access management pages for doctors, slots and appointments
+---
 
 ## GitHub Version Control and Branching
 
-Development was completed using GitHub version control and a feature branch workflow.
+Development followed a feature-branch workflow with pull requests required for all merges to `main`:
 
-## CI Workflow
+- All changes were made on feature branches 
+- Pull requests were opened against `main` with clear commit messages
+- The GitHub Actions CI workflow ran on every push to feature branches and on every PR to `main`
+- Each merge to `main` automatically triggered deployment to the production EC2 instances via the self-hosted GitHub Actions runner
 
-A GitHub Actions workflow named Backend CI was configured to:
+---
 
-run on push to main and feature/**
-run on pull requests to main
-install backend dependencies
-execute backend tests
+## CI/CD Pipeline
 
-## EC2 Deployment Note
+A GitHub Actions workflow named "Backend CI" is defined in `.github/workflows/ci.yml`.
 
-Deployment to the QUT provided EC2 instance was attempted. The backend service, MongoDB connection, frontend build and PM2 process setup were configured and tested on the instance. However, public external access remained unresolved despite troubleshooting EC2 networking and security group configuration.
+**Triggers:**
+- Push to `main` branch
+- Push to any `feature/**` branch
+- Pull requests targeting `main`
 
-The application is fully functional in the local development environment.
+**Workflow Steps:**
+1. Checkout the repository
+2. Setup Node.js v22 with dependency caching
+3. Install backend dependencies
+4. Run the mocha test suite 
+5. Build the frontend
+6. Stop, restart and verify PM2 processes on the production EC2
 
-## Limitations
+Deployment to EC2 is automated through a self-hosted GitHub Actions runner installed on Server 1. This enables continuous delivery — code merged to main is automatically deployed to the load balanced production environment.
 
-EC2 public deployment was attempted but not fully accessible externally
-Deployment configuration may require additional network/security troubleshooting for full public hosting
+---
 
+## Production Deployment
 
+The application is deployed on AWS using two EC2 instances behind an Application Load Balancer with CloudWatch monitoring.
+
+**Live Application URL (Application Load Balancer):**  
+http://MediTrack-ALB-291180955.ap-southeast-2.elb.amazonaws.com
+
+**Architecture:**
+
+- **Two EC2 t3.micro instances** running Ubuntu 24.04 LTS, Node.js v22, PM2 and Nginx reverse proxy
+- **AWS Application Load Balancer** distributing traffic across both instances with health checks every 30 seconds
+- **MongoDB Atlas** (free tier M0 cluster) for the database
+- **GitHub Actions self-hosted runner** for automated CI/CD on every merge to main
+- **AWS CloudWatch** monitoring CPU and network metrics with a configured alarm
+- **AWS SNS** for email notification delivery when alarms trigger
+- **Apache Bench** used to validate load distribution and performance characteristics
+
+**Load Testing Results:**
+- Baseline (100 requests, 10 concurrent): ~80 RPS, 127 ms mean latency, 0 failures
+- Stress (1000 requests, 100 concurrent): ~80 RPS, 1237 ms mean latency, 0 failures
+
+The throughput remained constant under stress while latency increased linearly with concurrency demonstrating behaviour of a properly load balanced system.
 
