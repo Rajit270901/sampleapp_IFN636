@@ -132,6 +132,17 @@ function App() { // main app component https://www.w3schools.com/react/react_com
             }
           />
         </Routes>
+        <footer style={{
+        textAlign: 'center',
+        padding: '24px 16px',
+        marginTop: '40px',
+        fontSize: '13px',
+        color: '#666',
+        borderTop: '1px solid #e5e5e5'
+      }}>
+        <p>MediTrack — Medical Appointment Scheduler</p>
+        <p>IFN636 Software Lifecycle Management — Assessment 2.1</p>
+      </footer>
       </div>
     </Router>
   );
