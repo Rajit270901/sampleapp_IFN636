@@ -348,15 +348,66 @@ The application is deployed on AWS using two EC2 instances behind an Application
 **Live Application URL (Application Load Balancer):**  
 http://MediTrack-ALB-291180955.ap-southeast-2.elb.amazonaws.com
 
-**Architecture:**
+## Architecture Overview
 
-- **Two EC2 t3.micro instances** running Ubuntu 24.04 LTS, Node.js v22, PM2 and Nginx reverse proxy
-- **AWS Application Load Balancer** distributing traffic across both instances with health checks every 30 seconds
-- **MongoDB Atlas** (free tier M0 cluster) for the database
-- **GitHub Actions self-hosted runner** for automated CI/CD on every merge to main
-- **AWS CloudWatch** monitoring CPU and network metrics with a configured alarm
-- **AWS SNS** for email notification delivery when alarms trigger
-- **Apache Bench** used to validate load distribution and performance characteristics
+MediTrack follows a three tier architecture deployed on AWS with horizontal scaling and automated CI/CD.
+
+### Tier 1: Client (React Single Page Application)
+
+The frontend is a React application built with Tailwind CSS. It uses React Router for client side routing and React Context for state management. axios is used as the HTTP client with interceptors for JWT token injection.
+
+### Tier 2: Application Server (Node.js + Express)
+
+The backend is an Express.js REST API running on Node.js 22 LTS. It implements:
+- JWT based authentication with role based authorisation
+- Five design patterns (Singleton, Factory, Facade, Middleware, Adapter)
+- Mocha test suite with chai and sinon
+- A request middleware chain (logging → validation → authentication)
+
+### Tier 3: Data (MongoDB Atlas)
+
+A MongoDB Atlas free tier (M0) cluster provides the data layer. Mongoose is used as the object data modelling layer.
+
+### Production Deployment Topology
+
+User requests flow through the system as follows:
+
+```text
+[User Browser]
+      ↓
+[AWS Application Load Balancer]
+Port 80: distributes incoming HTTP traffic
+      ↓
+[Target Group]
+Performs health checks every 30 seconds
+      ↓
+┌──────────────────────────────────────────────┐
+│ EC2 Server 1                                 │
+│ Nginx → React Frontend (port 3000)           │
+│       → Express Backend (port 5001)          │
+└──────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────┐
+│ EC2 Server 2                                 │
+│ Nginx → React Frontend (port 3000)           │
+│       → Express Backend (port 5001)          │
+└──────────────────────────────────────────────┘
+      ↓
+[MongoDB Atlas]
+Cloud database connected using TLS
+```
+
+### CI/CD Flow
+
+1. Developer pushes to feature branch
+2. GitHub Actions runs the test suite on a self-hosted runner
+3. PR is opened against main and reviewer approves after CI passes
+4. Merge to main triggers automatic deployment to both EC2 instances
+5. PM2 restarts the backend and frontend processes with the new code
+
+### Monitoring
+
+CloudWatch metrics capture CPU and network utilisation for both EC2 instances. A configured CPU alarm (HighCPUAlarm) notifies the operator via an SNS mediated email when sustained CPU elevation is detected.
 
 **Load Testing Results:**
 - Baseline (100 requests, 10 concurrent): ~80 RPS, 127 ms mean latency, 0 failures
