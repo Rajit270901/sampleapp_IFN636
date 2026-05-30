@@ -1,4 +1,5 @@
 # MediTrack - Medical Appointment Scheduler
+> Medical Appointment Scheduler — A team project for IFN636 Software Lifecycle Management.
 
 **IFN636 - Software Lifecycle Management - Assessment 2.1**  
 Developed by Rajit Ravindra Bhargava, Hayden Koomans, Pratham Hariani and Takshak Rajvanshi
