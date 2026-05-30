@@ -1,4 +1,5 @@
 # MediTrack - Medical Appointment Scheduler
+**Status:** Production-deployed at http://MediTrack-ALB-291180955.ap-southeast-2.elb.amazonaws.com (May 2026)
 
 **IFN636 - Software Lifecycle Management - Assessment 2.1**  
 Developed by Rajit Ravindra Bhargava, Hayden Koomans, Pratham Hariani and Takshak Rajvanshi
